@@ -86,7 +86,7 @@ const EPILOGUE = `
   travelCost, rentDue, clampHappy, careerLv, wage, net, goalsMet, prog,
   jonesAdvance, jonesDone, jonesOverall, stepEndTurn, eligibleJob, houseCap, setHappy,
   actTravel, actWork, actStudy, actEat, actGroceries, actApply, actBuyCloth,
-  actUpgradeHouse, actMood, actSellGood, actBank, actReadTips, canWork,
+  actUpgradeHouse, actMood, actSellGood, actBank, canWork,
   DIFF_ADULT, DIFF_KID, NODES, NODE, NODE_POS, HUB, JOBS_ADULT, JOBS_KID,
   HOUSES, CLOTH, LOOKS, DEFAULT_NAMES, ECON, JONES_TURNS, NODE_DESC,
   isProfane, cleanName, normName, jobsFor, jobName, curJob, diffTable, price, rerollPrices,
@@ -174,7 +174,7 @@ section('Unit tests');
   // travel
   ok(api.travelCost('bank', 'bank', 'adult') === 0, 'travelCost(same) = 0');
   ok(api.travelCost('bank', 'uni', 'adult') >= 1, 'travelCost(distinct) >= 1');
-  const pairs = [['bank', 'uni'], ['home', 'factory'], ['socket', 'tips'], ['burger', 'club']];
+  const pairs = [['bank', 'uni'], ['home', 'factory'], ['socket', 'park'], ['burger', 'club']];
   ok(pairs.every(([a, b]) => api.travelCost(a, b, 'adult') === api.travelCost(b, a, 'adult')), 'travelCost symmetric');
   ok(pairs.every(([a, b]) => api.travelCost(a, b, 'kid') <= api.travelCost(a, b, 'adult')), 'travelCost kid <= adult');
 
