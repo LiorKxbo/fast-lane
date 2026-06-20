@@ -88,17 +88,18 @@ input.name{width:100%;padding:12px 14px;border-radius:12px;background:var(--card
 .money b{color:var(--gold);font-size:15px}
 .hoursbar{height:10px;border-radius:999px;background:#0b1228;border:1px solid var(--line);overflow:hidden}
 .hoursbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--neon2));transition:width .3s}
-.gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.gauge{text-align:center}
-.gauge svg{width:100%;height:auto;display:block}
-.gauge .lab{font-size:10.5px;color:var(--ink-dim);margin-top:-2px;font-weight:600}
-.gauge .val{font-size:11px;font-weight:700}
-.jones{display:flex;align-items:center;gap:8px;font-size:12px}
-.jones .bar{flex:1;height:9px;border-radius:999px;background:#0b1228;border:1px solid var(--line);overflow:hidden}
-.jones .bar > i{display:block;height:100%;background:linear-gradient(90deg,#ff6b8b,#ff9d5c);transition:width .3s}
-.jmini{display:flex;gap:4px;margin-top:4px}
-.jmini > i{flex:1;height:4px;border-radius:2px;background:#0b1228;overflow:hidden;position:relative}
-.jmini > i > b{position:absolute;left:0;top:0;bottom:0;background:#ff7da0}
+/* goals: head-to-head you-vs-Jones bars per goal (like the original game) */
+.goalhdr{margin:3px 0 1px}
+.goalcmp{display:grid;gap:7px}
+.goalrow{display:grid;grid-template-columns:84px 1fr 50px;gap:8px;align-items:center}
+.glabel{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gtrack{position:relative;height:13px;border-radius:7px;background:#0b1228;border:1px solid var(--line)}
+.gfill{display:block;height:100%;border-radius:7px;transition:width .35s ease}
+.gjon{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--bad);transform:translateX(-50%);border-radius:2px}
+.gjon::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--bad)}
+.gval{font-size:10.5px;font-family:var(--mono);text-align:right;color:var(--ink-dim);white-space:nowrap}
+.gval.met{color:var(--good);font-weight:700}
+body.kid .gtrack{background:#ffe9c4}
 
 /* ---- map ---- */
 .mapwrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);
@@ -859,12 +860,26 @@ function gaugeSVG(p, color, label, valTxt){
   </svg><div class="lab">${label}</div><div class="val mono">${valTxt}</div></div>`;
 }
 function renderHUD(){
-  const p=prog();
-  const jo=Math.round(jonesOverall()*100);
-  const jm=['wealth','happy','edu','career'].map(k=>{
-    const v=Math.min(1,S.jp[k]/S.goal[k])*100; return `<i><b style="width:${v}%"></b></i>`;
+  const isKid=S.mode==='kid';
+  const p=prog();                                   // your progress 0..1 per goal
+  const jp={ wealth:S.jp.wealth/S.goal.wealth, happy:S.jp.happy/S.goal.happy,
+             edu:S.jp.edu/S.goal.edu, career:S.jp.career/S.goal.career };
+  const sk = v => v>=1000 ? (v/1000).toFixed(v>=10000?0:1)+'k' : Math.round(v)+'';
+  const rows = [
+    ['💰', T('wealth'), 'var(--w)', p.wealth, jp.wealth, `${sk(net())}/${sk(S.goal.wealth)}`],
+    ['❤️', T('happy'),  'var(--h)', p.happy,  jp.happy,  `${Math.round(S.happy)}/${S.goal.happy}`],
+    ['🎓', T('edu'),    'var(--e)', p.edu,    jp.edu,    `${S.edu}/${S.goal.edu}`],
+    ['💼', T('career'), 'var(--c)', p.career, jp.career, `${careerLv()}/${S.goal.career}`],
+  ].map(r=>{
+    const y=Math.max(0,Math.min(100,r[3]*100)), j=Math.max(0,Math.min(100,r[4]*100)), met=r[3]>=1;
+    return `<div class="goalrow">
+      <div class="glabel">${r[0]} ${r[1]}</div>
+      <div class="gtrack"><i class="gfill" style="width:${y.toFixed(0)}%;background:${r[2]}"></i><span class="gjon" style="left:${j.toFixed(0)}%"></span></div>
+      <div class="gval ${met?'met':''}">${met?'✓':r[5]}</div>
+    </div>`;
   }).join('');
-  const moneyLine = S.mode==='kid'
+  const youLab = isKid?'אתם':'You', vs = isKid?'מול':'vs';
+  const moneyLine = isKid
     ? `<b>${S.cash}🪙</b><br><span class="muted">${T('bank')} ${S.bank}🪙</span>`
     : `<b>$${S.cash}</b><br><span class="muted">${T('bank')} $${S.bank} · ${T('loan')} $${S.loan}</span>`;
   $('hud').innerHTML = `
@@ -877,20 +892,14 @@ function renderHUD(){
         style="flex:none;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:inherit;font-size:16px;cursor:pointer">✕</button>
     </div>
     <div>
-      <div class="row" style="justify-content:space-between;font-size:11px" class="muted">
+      <div class="row" style="justify-content:space-between;font-size:11px">
         <span class="muted tiny">⏳ ${S.hours}/${S.time} ${T('hours')}</span>
         <span class="muted tiny">🍔 ${Math.round(S.food)}</span>
       </div>
       <div class="hoursbar"><i style="width:${(S.hours/S.time*100)}%"></i></div>
     </div>
-    <div class="gauges">
-      ${gaugeSVG(p.wealth,'var(--w)',T('wealth'), S.mode==='kid'?net()+'🪙':'$'+net())}
-      ${gaugeSVG(p.happy,'var(--h)',T('happy'), Math.round(S.happy)+'/'+S.goal.happy)}
-      ${gaugeSVG(p.edu,'var(--e)',T('edu'), S.edu+'/'+S.goal.edu)}
-      ${gaugeSVG(p.career,'var(--c)',T('career'), careerLv()+'/'+S.goal.career)}
-    </div>
-    <div class="jones"><span>🤵 ${T('jones')}</span><div class="bar"><i style="width:${jo}%"></i></div><span class="mono">${jo}%</span></div>
-    <div class="jmini">${jm}</div>`;
+    <div class="goalhdr muted tiny">${isKid?'מטרות':'Goals'} — <b style="color:var(--neon)">${youLab}</b> ${vs} <b style="color:var(--bad)">🤵 ${T('jones')}</b></div>
+    <div class="goalcmp">${rows}</div>`;
 }
 function jobLabel(){ return S.jobIdx>=0 ? jobName(S.mode,S.jobIdx)+(S.rank?` ·${'★'.repeat(S.rank)}`:'') : (S.mode==='kid'?'בלי עבודה':'unemployed'); }
 
