@@ -55,53 +55,48 @@ After **any** change to game logic, run `node qa.js` and keep it green.
 
 ---
 
-## ⚠️ Passcode security
+## 🔐 Access — two password layers (both `2706`)
 
-The `2706` passcode is **client-side gating only**. The code is visible in the page
-source (`const GATE_CODE = "2706"`) and provides **no real security** — it just keeps
-casual visitors out. Anyone who views source can read it.
+This build is protected by **two** layers, both keyed to `2706`:
 
-### Real protection — Caddy Basic Auth
+1. **Server-side HTTP Basic Auth (Caddy).** Enforced before any file is served —
+   nothing loads without it. Username `player`, password `2706`, stored only as a
+   bcrypt hash in `Caddyfile` (never plaintext). This is the real access control.
+2. **In-game passcode screen.** After Basic Auth, `index.html` shows the `2706`
+   keypad gate (`const GATE_CODE = "2706"`). This layer is client-side only — the
+   code is visible in page source — so it's convenience, not security.
 
-For actual access control, put HTTP Basic Auth in front of the static files with Caddy.
-Generate a hash for the password:
+### Changing the password
 
 ```bash
-caddy hash-password --plaintext 2706
+caddy hash-password --plaintext <new-code>   # paste the hash into Caddyfile (layer 1)
+# then update GATE_CODE in index.html to the same code (layer 2)
 ```
-
-Then use a `Caddyfile` like this (replace the hash with the output above):
-
-```caddyfile
-:{$PORT} {
-	root * .
-	file_server
-	basic_auth {
-		player <PASTE_BCRYPT_HASH_HERE>
-	}
-}
-```
-
-This requires switching from the zero-config `Staticfile` approach to a custom Caddy
-config (Railway can run a `Caddyfile`). Username is `player`; the password is whatever
-you hashed. Unlike the in-page passcode, this is enforced server-side before any file
-is served.
 
 ---
 
-## Deploy to Railway (static, served by Caddy)
+## Deploy to Railway (Docker + Caddy)
 
-The empty **`Staticfile`** in the repo root triggers Railway/Railpack's static-site
-detection, so the app is served by Caddy with **zero build config**. Railway provides
-`$PORT` and HTTPS automatically.
+Because of the server-side Basic Auth, the app deploys as a tiny **Caddy container**
+(`Dockerfile` + `Caddyfile`) instead of zero-config static hosting — Railway uses the
+`Dockerfile` automatically when present. Railway provides `$PORT` and terminates HTTPS
+at its edge; Caddy serves plain HTTP on `$PORT` behind it.
 
 1. Push this folder to a GitHub repo.
 2. Railway → **New Project** → **Deploy from GitHub repo** → pick the repo.
 3. **Generate Domain** (Settings → Networking).
 4. Every push redeploys automatically.
 
-No build step, no server code needed in production — `server.js` is dev-only and is
-git-ignored.
+The image contains only Caddy + `index.html` (see `.dockerignore`), so the QA harness
+and build docs are never served publicly. `server.js` is dev-only and git-ignored.
+
+### Test the container locally (optional, needs Docker)
+
+```bash
+docker build -t quick-lane .
+docker run --rm -e PORT=8080 -p 8080:8080 quick-lane
+# http://localhost:8080  ->  Basic Auth (player / 2706)  ->  in-game gate (2706)
+```
 
 ---
 
@@ -109,7 +104,9 @@ git-ignored.
 
 ```
 index.html      # the whole game (engine + UI, single file)
-Staticfile      # empty -> Railway/Railpack static detection (Caddy)
+Dockerfile      # builds the Caddy container Railway deploys
+Caddyfile       # Caddy config: Basic Auth (player/2706) + static file server
+.dockerignore   # keeps only index.html + Caddyfile in the image
 qa.js           # Node QA harness (balance + integrity source of truth)
 README.md       # this file
 .gitignore

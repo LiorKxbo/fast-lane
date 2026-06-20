@@ -1,0 +1,6 @@
+# Keep the Docker build context tiny — only what the image needs.
+# (Dev tooling, tests, and build docs never enter the image, so they are
+#  never served publicly.)
+*
+!index.html
+!Caddyfile

@@ -25,15 +25,17 @@ A single-file static browser game (`index.html`) — a *Jones in the Fast Lane*�
 - After ANY change to game logic: run `node qa.js` and `node --check` on the extracted script. Don't declare done until both pass across several runs.
 - `qa.js` is the source of truth for balance + integrity (see BUILD_PROMPT §10). Update its targets only with a clear reason.
 - The map avatar must stand ABOVE building tiles (never overlap the building name label).
-- Passcode is client-side only — say so in the README; offer Caddy Basic Auth for real protection.
-- Deploy target: GitHub → Railway (static via empty `Staticfile`, served by Caddy). **Never `git push` or deploy without explicit confirmation in chat.**
+- Access = TWO layers, both `2706`: (1) server-side Caddy HTTP Basic Auth (user `player`, bcrypt hash in `Caddyfile`) and (2) the in-game client-side gate (`GATE_CODE` in index.html). Change one → change both.
+- Deploy target: GitHub → Railway via **Docker + Caddy** (`Dockerfile`/`Caddyfile`); Caddy serves `index.html` on `$PORT`, Railway terminates HTTPS. **Never `git push` or deploy without explicit confirmation in chat.**
 
 ## Repo layout (push-ready)
 ```
 index.html      # the whole game
-Staticfile      # empty -> Railway/Railpack static detection
-qa.js           # Node QA harness (dev only; fine to .gitignore for deploy)
-README.md       # deploy steps + password caveat
+Dockerfile      # Caddy container Railway builds
+Caddyfile       # Caddy: Basic Auth (player/2706) + file server
+.dockerignore   # ships only index.html + Caddyfile in the image
+qa.js           # Node QA harness (dev only)
+README.md       # deploy steps + password notes
 .gitignore
 ```
 

@@ -1,0 +1,21 @@
+# Quick Lane — Caddy config for Railway.
+# Layer 1 of 2: HTTP Basic Auth in front of the static game.
+#   Username: player
+#   Password: 2706   (stored ONLY as the bcrypt hash below — never plaintext)
+# To change the password, regenerate the hash and replace it below:
+#   caddy hash-password --plaintext <new-code>
+# (Layer 2 is the in-game passcode screen inside index.html.)
+
+{
+	admin off
+	auto_https off
+}
+
+:{$PORT:8080} {
+	root * /srv
+	encode gzip
+	file_server
+	basic_auth {
+		player $2b$12$3BkxSYX/ygFVkq5rbZKM.ehbmk9vy4w3Y8iuzH9F4olpDreo2/EFS
+	}
+}
