@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#0c1024" />
+<title>Quick Lane</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Mono:wght@400;500&family=Fredoka:wght@500;600;700&family=Heebo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#0a0e1f; --bg1:#0f1530; --bg2:#161e44; --line:#243056;
+  --neon:#46e6ff; --neon2:#b388ff; --gold:#ffd152; --good:#5dffa6; --bad:#ff6b8b;
+  --ink:#eaf0ff; --ink-dim:#9fb0d8; --card:#121937; --card2:#0d1430;
+  --w:#ffd152; --h:#ff8fb3; --e:#7bd0ff; --c:#9b8bff;
+  --font:'Space Grotesk',system-ui,sans-serif; --mono:'DM Mono',ui-monospace,monospace;
+  --r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  font-family:var(--font); color:var(--ink); background:
+    radial-gradient(1200px 600px at 50% -10%, #1b2350 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 110%, #2a1840 0%, transparent 55%),
+    linear-gradient(180deg,var(--bg0),var(--bg1));
+  min-height:100%; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:560px;margin:0 auto;padding:14px 14px 28px;min-height:100vh}
+.hidden{display:none !important}
+button{font-family:inherit;cursor:pointer;border:none;color:inherit}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:.2px}
+.mono{font-family:var(--mono)}
+
+/* ---- generic cards / buttons ---- */
+.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);
+  border-radius:var(--r);padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(180deg,#1c2a5a,#15224a);border:1px solid #2c3c72;color:var(--ink);
+  padding:12px 14px;border-radius:12px;font-weight:600;font-size:15px;transition:transform .08s ease,filter .15s;width:100%}
+.btn:hover{filter:brightness(1.12)} .btn:active{transform:translateY(1px) scale(.99)}
+.btn.primary{background:linear-gradient(180deg,#36e0ff,#2aa6ff);color:#04122b;border-color:#7ff0ff;font-weight:700}
+.btn.gold{background:linear-gradient(180deg,#ffd86b,#f5b53a);color:#3a2600;border-color:#ffe79a;font-weight:700}
+.btn.ghost{background:rgba(255,255,255,.04);border-color:var(--line)}
+.btn.sm{padding:9px 10px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.5)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.muted{color:var(--ink-dim)} .tiny{font-size:12px} .center{text-align:center}
+.pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:600}
+
+/* ---- splash / gate ---- */
+.brand{font-size:42px;line-height:1;font-weight:700;letter-spacing:-1px;
+  background:linear-gradient(90deg,var(--neon),var(--neon2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{display:block;font-size:13px;letter-spacing:3px;color:var(--ink-dim);margin-top:6px;font-weight:500}
+.gate-dots{display:flex;gap:10px;justify-content:center;margin:8px 0 4px}
+.gdot{width:14px;height:14px;border-radius:50%;border:2px solid #3a4a82;background:transparent;transition:.15s}
+.gdot.on{background:var(--neon);border-color:var(--neon);box-shadow:0 0 14px var(--neon)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto}
+.key{aspect-ratio:1.4/1;font-size:22px;font-weight:700;border-radius:14px;background:linear-gradient(180deg,#18234c,#111a3c);border:1px solid #2a3a70}
+.key:active{transform:translateY(1px)}
+
+/* ---- chooser ---- */
+.choose{display:grid;gap:12px}
+.choose .big{padding:22px;text-align:center;border-radius:18px;position:relative;overflow:hidden}
+.choose .big .emoji{font-size:46px;display:block;margin-bottom:6px}
+.choose .kids{background:linear-gradient(180deg,#ffd86b22,#ff8fb322);border-color:#ffd86b66}
+.choose .adults{background:linear-gradient(180deg,#36e0ff22,#b388ff22);border-color:#46e6ff66}
+
+/* ---- looks picker ---- */
+.looks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.look{font-size:34px;padding:8px 0;border-radius:14px;background:rgba(255,255,255,.04);border:2px solid transparent}
+.look.sel{border-color:var(--neon);background:rgba(70,230,255,.12);box-shadow:0 0 16px rgba(70,230,255,.3)}
+input.name{width:100%;padding:12px 14px;border-radius:12px;background:#0c1430;border:1px solid var(--line);
+  color:var(--ink);font-family:inherit;font-size:16px;text-align:center}
+
+/* ---- HUD ---- */
+.hud{display:grid;gap:10px;margin-bottom:10px}
+.hud-top{display:flex;align-items:center;gap:10px}
+.avatar{font-size:30px;width:46px;height:46px;display:grid;place-items:center;border-radius:12px;
+  background:radial-gradient(circle at 50% 35%,#22315f,#101a3e);border:1px solid var(--line)}
+.who{flex:1;min-width:0}
+.who .nm{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who .sub{font-size:12px;color:var(--ink-dim)}
+.money{text-align:right;font-family:var(--mono);font-size:13px;line-height:1.35}
+.money b{color:var(--gold);font-size:15px}
+.hoursbar{height:10px;border-radius:999px;background:#0b1228;border:1px solid var(--line);overflow:hidden}
+.hoursbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--neon2));transition:width .3s}
+.gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.gauge{text-align:center}
+.gauge svg{width:100%;height:auto;display:block}
+.gauge .lab{font-size:10.5px;color:var(--ink-dim);margin-top:-2px;font-weight:600}
+.gauge .val{font-size:11px;font-weight:700}
+.jones{display:flex;align-items:center;gap:8px;font-size:12px}
+.jones .bar{flex:1;height:9px;border-radius:999px;background:#0b1228;border:1px solid var(--line);overflow:hidden}
+.jones .bar > i{display:block;height:100%;background:linear-gradient(90deg,#ff6b8b,#ff9d5c);transition:width .3s}
+.jmini{display:flex;gap:4px;margin-top:4px}
+.jmini > i{flex:1;height:4px;border-radius:2px;background:#0b1228;overflow:hidden;position:relative}
+.jmini > i > b{position:absolute;left:0;top:0;bottom:0;background:#ff7da0}
+
+/* ---- map ---- */
+.mapwrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);
+  background:linear-gradient(180deg,#070b1c,#0a1126);margin-bottom:10px}
+.mapwrap svg{display:block;width:100%;height:auto}
+.nighttint{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,transparent 30%,#000 140%);
+  pointer-events:none;transition:opacity .5s;mix-blend-mode:multiply}
+.bldg-name{font-size:11px;font-weight:700;fill:var(--ink)}
+.bldg-emoji{font-size:20px}
+.av{font-size:22px;transition:transform .5s cubic-bezier(.5,.05,.3,1)}
+.herering{fill:none;stroke:var(--neon);stroke-width:2;opacity:.9}
+.reduce .av{transition:none}
+.reduce .twinkle{animation:none !important}
+
+/* ---- message bar ---- */
+.msgbar{display:flex;align-items:flex-start;gap:8px;background:linear-gradient(180deg,#13204a,#0e1838);
+  border:1px solid var(--line);border-radius:14px;padding:11px 12px;margin-bottom:10px;min-height:46px}
+.msgbar .ic{font-size:18px} .msgbar .tx{flex:1;font-size:13.5px;line-height:1.35}
+.spk{width:34px;height:34px;border-radius:10px;flex:none;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:16px}
+
+/* ---- panel ---- */
+.panel{margin-bottom:10px}
+.panel h3{display:flex;align-items:center;gap:8px;font-size:16px;margin-bottom:4px}
+.panel .desc{font-size:12.5px;color:var(--ink-dim);margin-bottom:10px}
+.line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.line:first-of-type{border-top:none}
+.line .l{font-size:13.5px} .line .l small{display:block;color:var(--ink-dim);font-size:11.5px}
+.tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.07)}
+.tag.ok{color:var(--good);background:rgba(93,255,166,.12)} .tag.no{color:var(--bad);background:rgba(255,107,139,.12)}
+.endbar{position:sticky;bottom:0;padding-top:6px}
+.cost{font-family:var(--mono);font-size:12px;color:var(--neon)}
+
+/* ---- popups ---- */
+.scrim{position:fixed;inset:0;background:rgba(4,8,20,.72);backdrop-filter:blur(3px);display:grid;place-items:center;z-index:40;padding:20px}
+.modal{max-width:380px;width:100%;text-align:center;animation:pop .25s ease}
+.modal .big{font-size:54px;margin-bottom:6px}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:50;
+  background:linear-gradient(180deg,#1c2a5a,#13204a);border:1px solid #46e6ff66;border-radius:999px;
+  padding:9px 16px;font-weight:700;font-size:14px;box-shadow:0 12px 30px rgba(0,0,0,.4);animation:pop .2s ease}
+.coach{position:fixed;inset:0;z-index:45;display:grid;place-items:center;padding:24px;background:rgba(4,8,20,.6)}
+
+/* ============ KID THEME ============ */
+body.kid{font-family:'Heebo',sans-serif;
+  background:radial-gradient(1000px 500px at 50% -10%,#fff3c4 0%,transparent 55%),
+    radial-gradient(800px 500px at 0% 110%,#bdf0ff 0%,transparent 55%),
+    linear-gradient(180deg,#fff8e6,#dff3ff)}
+body.kid{--ink:#2a2350;--ink-dim:#6b6a99;--line:#ffd98a;--card:#ffffff;--card2:#fff7e6;--r:22px}
+body.kid h1,body.kid h2,body.kid h3{font-family:'Fredoka',sans-serif}
+body.kid .brand{background:linear-gradient(90deg,#ff8fb3,#ffb84d);-webkit-background-clip:text;background-clip:text}
+body.kid .card{box-shadow:0 10px 26px rgba(255,170,90,.18);border-width:2px}
+body.kid .btn{background:linear-gradient(180deg,#fff,#fff2d6);border:2px solid #ffd07a;color:#3a2c66;border-radius:16px;font-weight:700}
+body.kid .btn.primary{background:linear-gradient(180deg,#ffd34d,#ffb038);color:#5a3a00;border-color:#ffbe55}
+body.kid .btn.gold{background:linear-gradient(180deg,#9be7ff,#5fd0ff);color:#063a52;border-color:#9be7ff}
+body.kid .mapwrap{background:linear-gradient(180deg,#eaf8ff,#d4f0ff);border-width:2px}
+body.kid .msgbar{background:linear-gradient(180deg,#fff,#fff4d9);border-width:2px;font-size:15px}
+body.kid .msgbar .tx{font-size:15px;font-weight:600}
+body.kid .nighttint{display:none}
+body.kid .bldg-name{fill:#3a2c66}
+body.kid .herering{stroke:#ff8fb3}
+body.kid .hoursbar > i{background:linear-gradient(90deg,#ffd34d,#ff9d5c)}
+body.kid .jones .bar > i{background:linear-gradient(90deg,#7ad0ff,#9be7ff)}
+body.kid[dir="rtl"] .money{text-align:left}
+
+.twinkle{animation:tw 3s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.25}50%{opacity:1}}
+.ring-pulse{animation:rp 1.8s ease-out infinite}
+@keyframes rp{0%{r:18;opacity:.9}100%{r:30;opacity:0}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+
+  <!-- ===== PASSCODE GATE ===== -->
+  <section id="gate" class="screen">
+    <div style="height:8vh"></div>
+    <div class="center">
+      <div class="brand">Quick&nbsp;Lane<small>RACE JONES TO THE GOOD LIFE</small></div>
+    </div>
+    <div class="card" style="margin-top:26px;max-width:330px;margin-left:auto;margin-right:auto">
+      <div class="center muted tiny" style="margin-bottom:10px">ENTER PASSCODE</div>
+      <div class="gate-dots" id="gateDots"></div>
+      <div class="keypad" id="keypad"></div>
+      <div id="gateErr" class="center tiny" style="color:var(--bad);height:16px;margin-top:8px"></div>
+    </div>
+  </section>
+
+  <!-- ===== CHOOSER ===== -->
+  <section id="chooser" class="screen hidden">
+    <div class="center" style="margin:18px 0 16px"><div class="brand" style="font-size:30px">Quick Lane</div></div>
+    <div class="choose">
+      <button class="card big adults btn" style="display:block" onclick="pickMode('adult')">
+        <span class="emoji">🌆</span><h2>Adults</h2>
+        <div class="muted tiny" style="margin-top:4px">Full strategy game · English</div>
+      </button>
+      <button class="card big kids btn" style="display:block" onclick="pickMode('kid')">
+        <span class="emoji">🧸</span><h2>ילדים</h2>
+        <div class="muted tiny" style="margin-top:4px">משחק עדין בעברית · עם הקראה</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== DIFFICULTY ===== -->
+  <section id="diff" class="screen hidden">
+    <h2 id="diffTitle" style="margin:14px 0">Choose difficulty</h2>
+    <div class="choose" id="diffList"></div>
+    <button class="btn ghost" style="margin-top:12px" onclick="show('chooser')" id="diffBack">← Back</button>
+  </section>
+
+  <!-- ===== CHARACTER CREATOR ===== -->
+  <section id="creator" class="screen hidden">
+    <h2 id="ccTitle" style="margin:14px 0">Create your character</h2>
+    <div class="card">
+      <div class="tiny muted" id="ccGenderLab">I am a…</div>
+      <div class="grid2" id="ccGender" style="margin:8px 0 14px"></div>
+      <div class="tiny muted" id="ccLookLab">Pick your look</div>
+      <div class="looks" id="ccLooks" style="margin:8px 0 14px"></div>
+      <div class="tiny muted" id="ccNameLab">Your name</div>
+      <input class="name" id="ccName" maxlength="16" autocomplete="off" />
+      <div id="ccNameErr" class="tiny center" style="color:var(--bad);height:15px;margin-top:6px"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" style="flex:1" onclick="show('diff')" id="ccBack">← Back</button>
+      <button class="btn primary" style="flex:2" onclick="startGame()" id="ccPlay">Play ▶</button>
+    </div>
+  </section>
+
+  <!-- ===== GAME ===== -->
+  <section id="game" class="screen hidden">
+    <div class="hud card" id="hud"></div>
+    <div class="mapwrap"><div id="mapSvg"></div><div class="nighttint" id="nightTint"></div></div>
+    <div class="msgbar"><div class="ic" id="msgIc">💬</div><div class="tx" id="msg"></div>
+      <button class="spk hidden" id="spkBtn" onclick="toggleTTS()">🔊</button></div>
+    <div id="panel" class="panel card"></div>
+    <div class="endbar"><button class="btn gold" id="endBtn" onclick="uiEndTurn()"></button></div>
+  </section>
+
+</div>
+
+<div id="popups"></div>
+
+<script>
+/* ============================================================================
+   QUICK LANE — single-file life-sim (Jones in the Fast Lane–style)
+   Architecture: pure logic core (no DOM) + thin UI layer. The QA harness
+   (qa.js) extracts this <script>, stubs the DOM, and drives the pure core.
+   Nothing here is wrapped in an IIFE so the harness epilogue can see the
+   top-level declarations.
+   ========================================================================== */
+
+/* ---- randomness funnelled through one hook (harness may override) ---- */
+var RNG = Math.random;
+function rng(){ return RNG(); }
+function rand(a,b){ return a + (b-a)*rng(); }
+function pick(arr){ return arr[Math.floor(rng()*arr.length)]; }
+
+/* ---- passcode (client-side gate only — see README) ---- */
+const GATE_CODE = "2706";
+
+/* ============================ DATA ======================================== */
+
+const HUB = 'tips';
+const NODES = [
+  {id:'home',    en:'Rent-A-Room', he:'הבית',          emoji:'🏠'},
+  {id:'uni',     en:'University',   he:'בית הספר',      emoji:'🎓'},
+  {id:'emp',     en:'Jobs Office',  he:'לוח עבודות',    emoji:'📋'},
+  {id:'bank',    en:'Bank',         he:'קופת חיסכון',   emoji:'🏦'},
+  {id:'socket',  en:'Socket City',  he:'חנות צעצועים',  emoji:'🔌'},
+  {id:'club',    en:'Black Hole',   he:'פארק שעשועים',  emoji:'🎡'},
+  {id:'hock',    en:'Hock Shop',    he:'דוכן החלפות',   emoji:'💱'},
+  {id:'zmart',   en:'Z-Mart',       he:'סופרמרקט',      emoji:'🛒'},
+  {id:'burger',  en:'Monolith',     he:'דוכן חטיפים',   emoji:'🍔'},
+  {id:'factory', en:'The Factory',  he:'חוות חיות',     emoji:'🐄'},
+  {id:'tips',    en:'Hot Tips',     he:'לוח מודעות',    emoji:'📰'},
+];
+const NODE = {}; NODES.forEach(n=>NODE[n.id]=n);
+
+/* ring layout: HUB at centre, others evenly on a ring -> spokes route through hub */
+const NODE_POS = (function(){
+  const pos={}, cx=200, cy=200, R=140;
+  const ring = NODES.filter(n=>n.id!==HUB);
+  ring.forEach((n,i)=>{
+    const a = (-90 + i*(360/ring.length)) * Math.PI/180;
+    pos[n.id] = { x: +(cx+R*Math.cos(a)).toFixed(2), y: +(cy+R*Math.sin(a)).toFixed(2) };
+  });
+  pos[HUB] = { x:cx, y:cy };
+  return pos;
+})();
+const TRAVEL_DIV = { adult:50, kid:100 }; // bigger divisor => cheaper trips for kids
+
+/* jobs: tuple (employer, level, base wage, edu required, clothing required) */
+const JOBS_ADULT = [
+  {en:'Burger Cook',     emp:'burger',  lv:1, wage:70,  edu:0, cloth:0},
+  {en:'Z-Mart Cashier',  emp:'zmart',   lv:1, wage:90,  edu:0, cloth:0},
+  {en:'Line Worker',     emp:'factory', lv:2, wage:135, edu:0, cloth:1},
+  {en:'Sales Clerk',     emp:'socket',  lv:2, wage:155, edu:1, cloth:1},
+  {en:'Bank Teller',     emp:'bank',    lv:3, wage:215, edu:2, cloth:2},
+  {en:'Factory Foreman', emp:'factory', lv:3, wage:245, edu:2, cloth:2},
+  {en:'Store Manager',   emp:'socket',  lv:4, wage:310, edu:3, cloth:2},
+  {en:'Loan Officer',    emp:'bank',    lv:5, wage:390, edu:4, cloth:3},
+  {en:'Professor',       emp:'uni',     lv:6, wage:520, edu:6, cloth:3},
+];
+const JOBS_KID = [
+  {he:'מוכר/ת לימונדה',  emp:'burger',  lv:1, wage:45,  edu:0, cloth:0},
+  {he:'מטפל/ת בכלבים',   emp:'factory', lv:1, wage:60,  edu:0, cloth:0},
+  {he:'ספרן/ית',         emp:'uni',     lv:1, wage:80,  edu:1, cloth:0},
+  {he:'מדען/ית',         emp:'socket',  lv:2, wage:120, edu:2, cloth:0},
+  {he:'וטרינר/ית',       emp:'factory', lv:3, wage:160, edu:3, cloth:0},
+];
+
+/* housing (adults). kids: single free house, cap 100 */
+const HOUSES = [
+  {en:'Rent-A-Room', he:'הבית', rent:180, cap:75,  dep:0,    comfort:0},
+  {en:'Apartment',   he:'דירה', rent:380, cap:100, dep:450,  comfort:0},
+  {en:'Condo',       he:'בית',  rent:650, cap:100, dep:1300, comfort:2},
+];
+
+/* clothing tiers (adults). tier 0 = starter */
+const CLOTH = [
+  {en:'Casual wear', tier:0, price:0},
+  {en:'Casual+',     tier:1, price:200},
+  {en:'Business',    tier:2, price:460},
+  {en:'Executive',   tier:3, price:920},
+];
+
+const LOOKS = {
+  man:   ['👨🏻','👨🏼','👨🏽','👨🏿'],
+  woman: ['👩🏻','👩🏼','👩🏽','👩🏿'],
+  boy:   ['👦🏻','👦🏼','👦🏽','👦🏿'],
+  girl:  ['👧🏻','👧🏼','👧🏽','👧🏿'],
+};
+const DEFAULT_NAMES = { boy:'בארי', girl:'נטע', man:'Lior', woman:'Avigail' };
+
+/* difficulty + Jones tuning. Goals match BUILD_PROMPT §5; jSpeed re-tuned via
+   qa.js against THIS build's economy (the spec allows re-tuning jSpeed when the
+   economy changes — hard lowered 2.6 -> 2.25 so the race lands in the QA band). */
+const DIFF_ADULT = {
+  easy:   {time:60, goal:{wealth:5000,  happy:75, edu:4, career:3}, jSpeed:1.9,  cash:350},
+  normal: {time:60, goal:{wealth:9000,  happy:82, edu:6, career:4}, jSpeed:2.55, cash:200},
+  hard:   {time:60, goal:{wealth:15000, happy:88, edu:8, career:6}, jSpeed:2.25, cash:120},
+};
+const DIFF_KID = {
+  easy:   {time:24, goal:{wealth:500,  happy:60, edu:2, career:1}, jSpeed:0.18, cash:250},
+  normal: {time:24, goal:{wealth:800,  happy:70, edu:3, career:2}, jSpeed:0.24, cash:250},
+  hard:   {time:24, goal:{wealth:1200, happy:78, edu:4, career:3}, jSpeed:0.32, cash:200},
+};
+const JONES_TURNS = { adult:18, kid:30 };
+
+/* per-mode economy knobs (tuned to keep QA green) */
+const ECON = {
+  adult:{
+    workH:6, studyH:8, eatH:1, buyH:1, bankH:1, tipsH:1, restH:4, nightH:2, moveMul:1,
+    course:120, eatCost:14, eatFood:26, grocCost:60, grocFood:62,
+    foodDecay:28, lowFood:25, lowFoodPenalty:6,
+    rest:8, night:14, nightCost:90,
+    appliance:{cost:250, happy:12, val:130}, electronics:{cost:600, happy:22, val:300},
+    used:{cost:120, happy:9},
+    saveRate:0.04, loanRate:0.08, tipsFee:20,
+  },
+  kid:{
+    workH:5, studyH:6, eatH:1, buyH:1, bankH:1, tipsH:1, restH:3, nightH:2, moveMul:1,
+    course:40, eatCost:5, eatFood:32, grocCost:18, grocFood:64,
+    foodDecay:12, lowFood:20, lowFoodPenalty:3,
+    rest:7, night:12, nightCost:30,
+    appliance:{cost:60, happy:12, val:30}, electronics:{cost:120, happy:20, val:60},
+    used:{cost:25, happy:8},
+    saveRate:0, loanRate:0, tipsFee:0,
+  }
+};
+
+/* ============================ STRINGS ===================================== */
+const STR = {
+  en:{
+    diffTitle:'Choose difficulty', back:'← Back', easy:'Easy', normal:'Normal', hard:'Hard',
+    ccTitle:'Create your character', gender:'I am a…', man:'Man', woman:'Woman',
+    look:'Pick your look', yname:'Your name', play:'Play ▶',
+    week:'Week', hours:'h left', cash:'Cash', bank:'Bank', loan:'Loan',
+    wealth:'Wealth', happy:'Happy', edu:'Edu', career:'Career', jones:'Jones',
+    endTurn:'End Week ⏭', goalsMet:'goal met',
+    work:'Work a shift', study:'Take a course', eat:'Eat a meal', groceries:'Buy groceries',
+    apply:'Apply', readTips:'Read Hot Tips', rest:'Rest at home', nightOut:'Night out',
+    deposit:'Deposit 100', depositAll:'Deposit all', withdraw:'Withdraw 100', takeLoan:'Loan +200', repay:'Repay loan',
+    upgrade:'Upgrade', buy:'Buy', sell:'Sell', need:'needs', haveJob:'You work here',
+    noHours:'Not enough hours this week.', noCash:'Not enough money.',
+    win:'YOU WIN!', winSub:'You reached the good life before Jones.',
+    lose:'Jones wins…', loseSub:'Your neighbour hit every goal first. Try again!',
+    playAgain:'Play again', restart:'New game',
+    promo:'Promotion!', applied:'Applied:', needsEdu:'need edu', needsCloth:'need outfit',
+    rentDue:'Rent due:', interest:'Bank interest', sound:'Sound',
+  },
+  he:{
+    diffTitle:'בחרו רמת קושי', back:'← חזרה', easy:'קל', normal:'רגיל', hard:'קשה',
+    ccTitle:'בנו את הדמות שלכם', gender:'אני…', man:'ילד', woman:'ילדה',
+    look:'בחרו מראה', yname:'השם שלי', play:'שחקו ▶',
+    week:'יום', hours:'שעות נשארו', cash:'כסף', bank:'חיסכון', loan:'הלוואה',
+    wealth:'עושר', happy:'שמחה', edu:'לימודים', career:'עבודה', jones:"ג'ונס",
+    endTurn:'סיום היום ⏭', goalsMet:'הושג',
+    work:'משמרת עבודה', study:'שיעור בבית הספר', eat:'לאכול', groceries:'קניות אוכל',
+    apply:'הגשה', readTips:'לקרוא מודעות', rest:'מנוחה בבית', nightOut:'יום כיף',
+    deposit:'הפקדה 100', depositAll:'הפקדת הכל', withdraw:'משיכה 100', takeLoan:'הלוואה', repay:'החזר',
+    upgrade:'שדרוג', buy:'קנייה', sell:'מכירה', need:'צריך', haveJob:'אתם עובדים כאן',
+    noHours:'אין מספיק שעות היום.', noCash:'אין מספיק כסף.',
+    win:'ניצחתם! 🎉', winSub:"הגעתם לכל המטרות לפני ג'ונס!",
+    lose:'כל הכבוד!', loseSub:'סיימתם את היום בכיף!',
+    playAgain:'משחק חדש', restart:'משחק חדש',
+    promo:'קידום! 🎉', applied:'התקבלתם:', needsEdu:'צריך לימודים', needsCloth:'',
+    rentDue:'שכר דירה', interest:'ריבית', sound:'קול',
+  }
+};
+/* per-node short descriptions (read aloud for kids) */
+const NODE_DESC = {
+  en:{
+    home:'Your room. Rest to recover happiness; upgrade your home to be happier.',
+    uni:'University. Take courses to unlock better jobs.',
+    emp:'Jobs Office. Apply for the best job you qualify for.',
+    bank:'Bank. Save money to earn interest, or take a loan.',
+    socket:'Socket City. Big electronics for a happiness boost; sales jobs too.',
+    club:'Black Hole. A fun night out to lift your mood.',
+    hock:'Hock Shop. Sell things for fast cash or buy used.',
+    zmart:'Z-Mart. Groceries, clothes and appliances.',
+    burger:'Monolith. A cheap, quick meal.',
+    factory:'The Factory. Honest shift work.',
+    tips:'Hot Tips. Pay to learn this week’s prices and dodge bad luck.',
+  },
+  he:{
+    home:'הבית שלכם. נוחו כדי להיות שמחים יותר.',
+    uni:'בית הספר. לִמדו שיעורים כדי לפתוח עבודות חדשות.',
+    emp:'לוח העבודות. הגישו מועמדות לעבודה הכי טובה שמתאימה לכם.',
+    bank:'קופת החיסכון. שִמרו כאן את הכסף שלכם.',
+    socket:'חנות הצעצועים. צעצועים גדולים שמשמחים מאוד.',
+    club:'פארק השעשועים. יום כיף שמעלה את השמחה.',
+    hock:'דוכן ההחלפות. מִכרו דברים וקבלו מטבעות.',
+    zmart:'הסופרמרקט. אוכל וצעצועים קטנים.',
+    burger:'דוכן החטיפים. חטיף טעים וזול.',
+    factory:'חוות החיות. עבודה כיפית עם בעלי חיים.',
+    tips:'לוח המודעות. בואו לקרוא חדשות ולקבל קצת שמחה.',
+  }
+};
+
+/* ============================ PROFANITY FILTER ============================ */
+const LEET = {'1':'i','0':'o','3':'e','4':'a','5':'s','7':'t','@':'a','$':'s','!':'i'};
+const BAD_EN = ['fuck','shit','bitch','asshole','cunt','dick','pussy','nigger','nigga',
+  'faggot','fag','porn','slut','whore','bastard','rape','retard','wank','jerkoff','dildo','boner'];
+const BAD_HE = ['זין','כוס','זונה','שרמוטה','מניאק','בנזונה','חרא','קקה','תחתי','פרחה','הומו','נאצי'];
+function deleet(s){ return s.replace(/[103457@$!]/g, c=>LEET[c]||c); }
+function normName(s){ return deleet(String(s).toLowerCase()).replace(/[^a-z֐-׿]/g,''); }
+function isProfane(name){
+  const n = normName(name);
+  if(!n) return false;
+  for(const w of BAD_EN) if(n.indexOf(w)>=0) return true;
+  for(const w of BAD_HE) if(n.indexOf(w)>=0) return true;
+  return false;
+}
+/* returns a safe, accepted name or null if rejected; '' -> caller supplies default */
+function cleanName(raw, fallback){
+  let s = String(raw==null?'':raw).trim();
+  if(!s) return fallback;
+  if(isProfane(s)) return null;
+  return s.replace(/[<>&]/g,'').slice(0,16);
+}
+
+/* ============================ GAME STATE ================================== */
+var S = null;
+
+function diffTable(mode){ return mode==='kid'?DIFF_KID:DIFF_ADULT; }
+function jobsFor(mode){ return mode==='kid'?JOBS_KID:JOBS_ADULT; }
+function jobName(mode, idx){ const j=jobsFor(mode)[idx]; return j?(mode==='kid'?j.he:j.en):''; }
+
+function newGame(mode, diffKey, opts){
+  opts = opts||{};
+  const D = diffTable(mode)[diffKey];
+  S = {
+    mode, diffKey, goal:{...D.goal}, time:D.time, jSpeed:D.jSpeed,
+    jonesTurns:JONES_TURNS[mode],
+    name: opts.name || DEFAULT_NAMES[mode==='kid'?'boy':'man'],
+    gender: opts.gender || (mode==='kid'?'boy':'man'),
+    look: opts.look || LOOKS[mode==='kid'?'boy':'man'][0],
+    cash:D.cash, bank:0, loan:0, happy:50, food:80,
+    cloth:0, clothWear:0, edu:0,
+    jobIdx:-1, exp:0, rank:0, house:0,
+    week:1, hours:D.time, pos:'home',
+    priceMult:1, tipsRead:false, dodgeNext:false,
+    goods:0, jp:{wealth:0,happy:0,edu:0,career:0},
+    over:null, // null | 'win' | 'lose'
+    ttsOn: mode==='kid',
+    lastMsg:'',
+  };
+  rerollPrices();
+  return S;
+}
+
+/* ============================ PURE LOGIC ================================= */
+function E(){ return ECON[S.mode]; }
+function houseCap(){ return S.mode==='kid' ? 100 : HOUSES[S.house].cap; }
+function clampHappy(v){ return Math.max(0, Math.min(houseCap(), v)); }
+function setHappy(v){ S.happy = clampHappy(v); }
+function curJob(){ return S.jobIdx>=0 ? jobsFor(S.mode)[S.jobIdx] : null; }
+function careerLv(){ const j=curJob(); return j ? j.lv + S.rank : 0; }
+function wage(){ const j=curJob(); if(!j) return 0; return Math.round(j.wage*(1+0.25*S.rank+Math.min(0.03*S.exp,0.45))); }
+function net(){ return Math.round(S.cash + S.bank - S.loan); }
+
+function travelCost(a, b, mode){
+  mode = mode || (S?S.mode:'adult');
+  if(a===b) return 0;
+  const d = p => Math.hypot(NODE_POS[p].x-NODE_POS[HUB].x, NODE_POS[p].y-NODE_POS[HUB].y);
+  const raw = d(a) + d(b);            // routes through the central hub
+  return Math.max(1, Math.round(raw / TRAVEL_DIV[mode]));
+}
+function rentDue(week, mode){ return mode!=='kid' && week % 4 === 0; }
+
+function rerollPrices(){ S.priceMult = S.mode==='kid' ? 1 : +rand(0.85,1.20).toFixed(2); }
+function price(base){ return Math.round(base * S.priceMult); }
+
+/* goal progress (0..1 each) */
+function prog(){
+  return {
+    wealth: net()/S.goal.wealth,
+    happy:  S.happy/S.goal.happy,
+    edu:    S.edu/S.goal.edu,
+    career: careerLv()/S.goal.career,
+  };
+}
+function goalsMet(){
+  return net()>=S.goal.wealth && S.happy>=S.goal.happy &&
+         S.edu>=S.goal.edu && careerLv()>=S.goal.career;
+}
+function checkWin(){ if(!S.over && goalsMet()) S.over='win'; return S.over==='win'; }
+
+function jonesOverall(){
+  const g=S.goal, j=S.jp;
+  const p=[j.wealth/g.wealth, j.happy/g.happy, j.edu/g.edu, j.career/g.career].map(x=>Math.min(1,x));
+  return (p[0]+p[1]+p[2]+p[3])/4;
+}
+function jonesDone(){
+  const g=S.goal, j=S.jp;
+  return j.wealth>=g.wealth && j.happy>=g.happy && j.edu>=g.edu && j.career>=g.career;
+}
+function jonesAdvance(){
+  for(const k of ['wealth','happy','edu','career'])
+    S.jp[k] += S.goal[k] * (1/S.jonesTurns) * S.jSpeed * rand(0.8,1.2);
+}
+
+/* ---- atomic guards ---- */
+function hasH(h){ return S.hours >= h; }
+function spendH(h){ S.hours -= h; }
+
+/* ============================ ACTIONS (pure) ============================== */
+/* each returns a message string on success, or null/false when not allowed   */
+
+function actTravel(id){
+  if(S.over) return null;
+  const c = travelCost(S.pos, id, S.mode);
+  if(!hasH(c)) return null;
+  spendH(c); S.pos = id;
+  return c>0 ? `${loc(id)} (−${c}${hl()})` : loc(id);
+}
+function canWork(){ const j=curJob(); return !!j && S.pos===j.emp && hasH(E().workH); }
+function actWork(){
+  const j=curJob(); if(!j || S.pos!==j.emp || !hasH(E().workH)) return null;
+  spendH(E().workH);
+  const pay = wage();
+  S.cash += pay; S.exp += 1;
+  setHappy(S.happy-1); S.food = Math.max(0,S.food-3);
+  let msg = `${T('work')}: +${money(pay)}`;
+  // promotion check
+  const wasRank=S.rank;
+  if(S.exp>=9) S.rank=2; else if(S.exp>=4) S.rank=1;
+  if(S.rank>wasRank) msg += ` · ${T('promo')}`;
+  return msg;
+}
+function canStudy(){ return S.pos==='uni' && hasH(E().studyH) && affordCash(E().course); }
+function actStudy(){
+  if(S.pos!=='uni' || !hasH(E().studyH) || !affordCash(E().course)) return null;
+  payCash(E().course); spendH(E().studyH); S.edu += 1;
+  return `${T('study')} ✓ (edu ${S.edu})`;
+}
+function canEat(){ return S.pos==='burger' && hasH(E().eatH) && affordCash(price(E().eatCost)); }
+function actEat(){
+  if(S.pos!=='burger' || !hasH(E().eatH) || !affordCash(price(E().eatCost))) return null;
+  payCash(price(E().eatCost)); spendH(E().eatH);
+  S.food=Math.min(100,S.food+E().eatFood); setHappy(S.happy+2);
+  return `${T('eat')} ✓`;
+}
+function actGroceries(){
+  if(S.pos!=='zmart' || !hasH(E().buyH) || !affordCash(price(E().grocCost))) return null;
+  payCash(price(E().grocCost)); spendH(E().buyH);
+  S.food=Math.min(100,S.food+E().grocFood);
+  return `${T('groceries')} ✓`;
+}
+function eligibleJob(idx){
+  const j=jobsFor(S.mode)[idx]; if(!j) return false;
+  return S.edu>=j.edu && (S.mode==='kid' || S.cloth>=j.cloth);
+}
+function actApply(idx){
+  if(S.pos!=='emp' || !hasH(E().buyH) || !eligibleJob(idx)) return null;
+  spendH(E().buyH); S.jobIdx=idx; S.exp=0; S.rank=0;
+  return `${T('applied')} ${jobName(S.mode,idx)}`;
+}
+function actBuyCloth(tier){
+  if(S.mode==='kid') return null;
+  const c=CLOTH[tier]; if(!c || S.pos!=='zmart' || tier<=S.cloth) return null;
+  if(!hasH(E().buyH) || !affordCash(price(c.price))) return null;
+  payCash(price(c.price)); spendH(E().buyH); S.cloth=tier; S.clothWear=0;
+  return `${c.en} ✓`;
+}
+function actUpgradeHouse(tier){
+  if(S.mode==='kid') return null;
+  const h=HOUSES[tier]; if(!h || S.pos!=='home' || tier<=S.house) return null;
+  if(!hasH(E().buyH) || !affordCash(h.dep)) return null;
+  payCash(h.dep); spendH(E().buyH); S.house=tier;
+  return `${h.en} ✓`;
+}
+function actMood(kind){
+  const e=E();
+  const map={
+    rest:   {node:'home',  h:e.restH,  cost:0,            happy:e.rest,  good:false},
+    night:  {node:'club',  h:e.nightH, cost:price(e.nightCost), happy:e.night, good:false},
+    appliance:{node:'zmart',h:e.buyH,  cost:price(e.appliance.cost), happy:e.appliance.happy, good:true},
+    electronics:{node:'socket',h:e.buyH,cost:price(e.electronics.cost),happy:e.electronics.happy,good:true},
+    used:   {node:'hock',  h:e.buyH,   cost:price(e.used.cost), happy:e.used.happy, good:true},
+  };
+  const m=map[kind]; if(!m || S.pos!==m.node || !hasH(m.h) || !affordCash(m.cost)) return null;
+  payCash(m.cost); spendH(m.h); setHappy(S.happy+m.happy);
+  if(m.good) S.goods+=1;
+  return `+${m.happy} ${T('happy')} ✓`;
+}
+function actSellGood(){
+  if(S.pos!=='hock' || S.goods<=0 || !hasH(E().buyH)) return null;
+  spendH(E().buyH); S.goods-=1;
+  const v=Math.round(E().appliance.val*0.5); S.cash+=v;
+  return `${T('sell')}: +${money(v)}`;
+}
+/* bank ops (adult full, kid storage only) */
+function actBank(op, amt){
+  if(S.pos!=='bank' || !hasH(E().bankH)) return null;
+  if(op==='dep'){ const a=Math.min(amt, S.cash); if(a<=0) return null; S.cash-=a; S.bank+=a; spendH(E().bankH); return `${T('deposit')} ✓`; }
+  if(op==='wd'){ const a=Math.min(amt, S.bank); if(a<=0) return null; S.bank-=a; S.cash+=a; spendH(E().bankH); return `${T('withdraw')} ✓`; }
+  if(S.mode==='kid') return null; // loans adult-only
+  if(op==='loan'){ S.loan+=amt; S.cash+=amt; spendH(E().bankH); return `${T('takeLoan')} ✓`; }
+  if(op==='repay'){ const a=Math.min(S.loan, S.cash); if(a<=0) return null; S.loan-=a; S.cash-=a; spendH(E().bankH); return `${T('repay')} ✓`; }
+  return null;
+}
+function actReadTips(){
+  if(S.pos!=='tips' || !hasH(E().tipsH) || !affordCash(E().tipsFee)) return null;
+  payCash(E().tipsFee); spendH(E().tipsH); S.tipsRead=true;
+  if(S.mode==='kid'){ setHappy(S.happy+4); return `${T('readTips')} ✓ (+4 ${T('happy')})`; }
+  S.dodgeNext=true;
+  return `${T('readTips')} ✓ · price ×${S.priceMult}`;
+}
+
+/* helpers for cash */
+function affordCash(c){ return S.cash >= c; }
+function payCash(c){ S.cash -= c; }
+
+/* ============================ EVENTS ===================================== */
+const EVENTS_ADULT = [
+  {good:true,  m:'🎟️ Lottery win! +$400',  f:()=>S.cash+=400},
+  {good:true,  m:'💵 Tax refund. +$250',     f:()=>S.cash+=250},
+  {good:true,  m:'👏 Work bonus. +$180',     f:()=>S.cash+=180},
+  {good:true,  m:'👛 Found a wallet. +$90',   f:()=>S.cash+=90},
+  {good:true,  m:'😊 Nice weather. +5 happy', f:()=>setHappy(S.happy+5)},
+  {good:false, m:'🧾 Surprise tax bill. −$220', f:()=>S.cash=Math.max(0,S.cash-220)},
+  {good:false, m:'🕵️ Pickpocket! −$120',     f:()=>S.cash=Math.max(0,S.cash-120)},
+  {good:false, m:'🤒 Down with the flu. −8 happy', f:()=>setHappy(S.happy-8)},
+  {good:false, m:'🔧 Appliance broke. −$140', f:()=>S.cash=Math.max(0,S.cash-140)},
+  {good:false, m:'🛠️ Repair bill. −$100',     f:()=>S.cash=Math.max(0,S.cash-100)},
+];
+const EVENTS_KID = [
+  {good:true, m:'🍦 גלידה חינם! +6 שמחה',  f:()=>setHappy(S.happy+6)},
+  {good:true, m:'🎈 מצאתם בלון! +4 שמחה',  f:()=>setHappy(S.happy+4)},
+  {good:true, m:'🪙 מצאתם מטבעות! +30',     f:()=>S.cash+=30},
+  {good:true, m:'🌈 יום יפה! +5 שמחה',      f:()=>setHappy(S.happy+5)},
+  {good:true, m:'🐶 כלבלב שמח לראות אתכם! +5', f:()=>setHappy(S.happy+5)},
+  {good:true, m:'🎁 הפתעה קטנה! +20',        f:()=>S.cash+=20},
+];
+function rollEvent(){
+  if(S.mode==='kid'){ const e=pick(EVENTS_KID); e.f(); return e.m; }
+  let e = pick(EVENTS_ADULT);
+  if(!e.good && S.dodgeNext && rng()<0.6){ S.dodgeNext=false; return '🍀 Dodged some bad luck!'; }
+  e.f();
+  return e.m;
+}
+
+/* ============================ END OF TURN (pure) ========================= */
+function stepEndTurn(){
+  if(S.over) return {over:S.over};
+  const log=[];
+  const e=E();
+  // food decay + hunger penalty
+  S.food = Math.max(0, S.food - e.foodDecay);
+  if(S.food < e.lowFood){ setHappy(S.happy - e.lowFoodPenalty); log.push('🍽️ hungry'); }
+  // clothing wear (adults)
+  if(S.mode!=='kid' && S.cloth>0){ S.clothWear++; if(S.clothWear>=4){ S.cloth--; S.clothWear=0; log.push('👕 clothes worn'); } }
+  // comfort bonus (condo)
+  if(S.mode!=='kid'){ const c=HOUSES[S.house].comfort; if(c) setHappy(S.happy+c); }
+  // rent (adults, monthly)
+  if(rentDue(S.week, S.mode)){
+    const r=HOUSES[S.house].rent;
+    let pay=Math.min(r,S.cash); S.cash-=pay; let short=r-pay;
+    if(short>0){ const fromBank=Math.min(short,S.bank); S.bank-=fromBank; short-=fromBank; }
+    if(short>0){ S.loan+=short; setHappy(S.happy-4); }
+    log.push(`${T('rentDue')} −${money(r)}`);
+  }
+  // bank interest (adults)
+  if(S.mode!=='kid'){
+    if(S.bank>0) S.bank=Math.round(S.bank*(1+e.saveRate));
+    if(S.loan>0) S.loan=Math.round(S.loan*(1+e.loanRate));
+  }
+  // random event
+  const ev = rollEvent(); log.push(ev);
+  // Jones advances toward his goals
+  jonesAdvance();
+  // advance clock
+  S.week += 1; S.hours = S.time; S.pos = S.pos; // stay where you are
+  S.tipsRead=false;
+  rerollPrices();
+  // lose check (adults only)
+  if(S.mode!=='kid' && jonesDone()) S.over='lose';
+  return {over:S.over, log, event:ev};
+}
+
+/* ============================ I18N small helpers ========================= */
+function lang(){ return (S&&S.mode==='kid')?'he':'en'; }
+function T(k){ return (STR[lang()][k]) ?? STR.en[k] ?? k; }
+function loc(id){ const n=NODE[id]; return S.mode==='kid'?n.he:n.en; }
+function money(v){ return (S.mode==='kid'?'':'$')+v+(S.mode==='kid'?'🪙':''); }
+function hl(){ return S.mode==='kid'?'ש':'h'; }
+
+/* ============================================================================
+   ===============================  UI LAYER  ================================
+   Everything below touches the DOM. The QA harness never calls it (no game is
+   started without a passcode), and all browser APIs are guarded so a stubbed
+   DOM won't throw.
+   ========================================================================== */
+function $(id){ return document.getElementById(id); }
+function reduceMotion(){ try{ return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+
+const SCREENS=['gate','chooser','diff','creator','game'];
+function show(id){
+  SCREENS.forEach(s=>{ const el=$(s); if(el) el.classList.toggle('hidden', s!==id); });
+}
+
+/* ---------- passcode keypad ---------- */
+var gateBuf='';
+function buildKeypad(){
+  const kp=$('keypad'); if(!kp) return;
+  const keys=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+  kp.innerHTML = keys.map(k=>`<button class="key btn" onclick="gateKey('${k}')">${k}</button>`).join('');
+  renderGateDots();
+}
+function renderGateDots(){
+  const d=$('gateDots'); if(!d) return;
+  let h=''; for(let i=0;i<4;i++) h+=`<span class="gdot ${i<gateBuf.length?'on':''}"></span>`;
+  d.innerHTML=h;
+}
+function gateKey(k){
+  const err=$('gateErr'); if(err) err.textContent='';
+  if(k==='⌫'){ gateBuf=gateBuf.slice(0,-1); renderGateDots(); return; }
+  if(k==='✓'){ submitGate(); return; }
+  if(gateBuf.length<4){ gateBuf+=k; renderGateDots(); if(gateBuf.length===4) submitGate(); }
+}
+function submitGate(){
+  if(gateBuf===GATE_CODE){ show('chooser'); }
+  else { const err=$('gateErr'); if(err) err.textContent='Wrong code — try again'; gateBuf=''; renderGateDots(); }
+}
+
+/* ---------- chooser / difficulty / creator ---------- */
+var DRAFT={mode:'adult',diff:'normal',gender:'man',look:null,name:''};
+function pickMode(mode){
+  DRAFT.mode=mode;
+  applyTheme(mode);
+  buildDiff();
+  show('diff');
+}
+function applyTheme(mode){
+  document.body.classList.toggle('kid', mode==='kid');
+  document.body.setAttribute('dir', mode==='kid'?'rtl':'ltr');
+  document.documentElement.setAttribute('lang', mode==='kid'?'he':'en');
+}
+function buildDiff(){
+  const isKid=DRAFT.mode==='kid';
+  const s=STR[isKid?'he':'en'];
+  $('diffTitle').textContent=s.diffTitle;
+  $('diffBack').textContent=s.back;
+  const tbl=diffTable(DRAFT.mode);
+  const order=['easy','normal','hard'];
+  const tags=isKid?['😊 קל','🙂 רגיל','😎 קשה']:['Relaxed','Balanced','Challenge'];
+  $('diffList').innerHTML = order.map((k,i)=>{
+    const d=tbl[k];
+    const goals=isKid
+      ? `${d.goal.wealth}🪙 · שמחה ${d.goal.happy} · לימודים ${d.goal.edu}`
+      : `$${d.goal.wealth} · happy ${d.goal.happy} · edu ${d.goal.edu} · career ${d.goal.career}`;
+    return `<button class="card big btn" style="display:block;text-align:${isKid?'right':'left'}" onclick="pickDiff('${k}')">
+      <h3>${s[k]} <span class="muted tiny">${tags[i]}</span></h3>
+      <div class="muted tiny" style="margin-top:4px">${goals}</div></button>`;
+  }).join('');
+}
+function pickDiff(k){ DRAFT.diff=k; buildCreator(); show('creator'); }
+
+function buildCreator(){
+  const isKid=DRAFT.mode==='kid';
+  const s=STR[isKid?'he':'en'];
+  $('ccTitle').textContent=s.ccTitle;
+  $('ccGenderLab').textContent=s.gender;
+  $('ccLookLab').textContent=s.look;
+  $('ccNameLab').textContent=s.yname;
+  $('ccPlay').textContent=s.play;
+  $('ccBack').textContent=s.back;
+  const gA = isKid?['boy','girl']:['man','woman'];
+  const labels = isKid?{boy:'👦 ילד',girl:'👧 ילדה'}:{man:'👨 Man',woman:'👩 Woman'};
+  DRAFT.gender=gA[0];
+  $('ccGender').innerHTML=gA.map(g=>`<button class="btn ghost" data-g="${g}" onclick="pickGender('${g}')">${labels[g]}</button>`).join('');
+  refreshGenderSel(); refreshLooks();
+  $('ccName').value = DEFAULT_NAMES[DRAFT.gender];
+  DRAFT.name=$('ccName').value;
+  $('ccName').oninput=()=>{ $('ccNameErr').textContent=''; };
+}
+function pickGender(g){ DRAFT.gender=g; refreshGenderSel(); refreshLooks();
+  const cur=$('ccName').value.trim();
+  if(!cur || Object.values(DEFAULT_NAMES).indexOf(cur)>=0) $('ccName').value=DEFAULT_NAMES[g];
+}
+function refreshGenderSel(){
+  const wrap=$('ccGender'); if(!wrap) return;
+  Array.prototype.forEach.call(wrap.querySelectorAll('[data-g]'),b=>{
+    const on=b.getAttribute('data-g')===DRAFT.gender;
+    b.classList.toggle('primary',on); b.classList.toggle('ghost',!on);
+  });
+}
+function refreshLooks(){
+  const looks=LOOKS[DRAFT.gender]; DRAFT.look=looks[0];
+  $('ccLooks').innerHTML=looks.map((e,i)=>`<button class="look ${i===0?'sel':''}" data-i="${i}" onclick="pickLook(${i})">${e}</button>`).join('');
+}
+function pickLook(i){
+  DRAFT.look=LOOKS[DRAFT.gender][i];
+  Array.prototype.forEach.call($('ccLooks').querySelectorAll('.look'),(b,bi)=>b.classList.toggle('sel',bi===i));
+}
+function startGame(){
+  const fallback=DEFAULT_NAMES[DRAFT.gender];
+  const nm=cleanName($('ccName').value, fallback);
+  if(nm===null){ $('ccNameErr').textContent = DRAFT.mode==='kid'?'בחרו שם אחר 🙂':'Please choose another name'; return; }
+  newGame(DRAFT.mode, DRAFT.diff, {name:nm, gender:DRAFT.gender, look:DRAFT.look});
+  applyTheme(S.mode);
+  $('endBtn').textContent=T('endTurn');
+  $('spkBtn').classList.toggle('hidden', S.mode!=='kid');
+  show('game');
+  render();
+  say(S.mode==='kid'?`שלום ${S.name}! בואו נתחיל 🎉`:`Welcome, ${S.name}. Beat Jones to all four goals.`);
+  if(typeof setTimeout!=='undefined') setTimeout(showCoach,400);
+}
+
+/* ---------- render ---------- */
+function render(){
+  if(!S) return;
+  renderHUD(); renderMap(); renderPanel(); renderEnd();
+  const tint=$('nightTint'); if(tint) tint.style.opacity = S.mode==='kid'?0:(1 - S.hours/S.time)*0.7;
+}
+
+function gaugeSVG(p, color, label, valTxt){
+  const r=20, c=2*Math.PI*r, off=c*(1-Math.max(0,Math.min(1,p)));
+  return `<div class="gauge"><svg viewBox="0 0 52 52">
+    <circle cx="26" cy="26" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"/>
+    <circle cx="26" cy="26" r="${r}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"
+      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 26 26)"/>
+    <text x="26" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="${color}">${p>=1?'✓':Math.round(p*100)+'%'}</text>
+  </svg><div class="lab">${label}</div><div class="val mono">${valTxt}</div></div>`;
+}
+function renderHUD(){
+  const p=prog();
+  const jo=Math.round(jonesOverall()*100);
+  const jm=['wealth','happy','edu','career'].map(k=>{
+    const v=Math.min(1,S.jp[k]/S.goal[k])*100; return `<i><b style="width:${v}%"></b></i>`;
+  }).join('');
+  const moneyLine = S.mode==='kid'
+    ? `<b>${S.cash}🪙</b><br><span class="muted">${T('bank')} ${S.bank}🪙</span>`
+    : `<b>$${S.cash}</b><br><span class="muted">${T('bank')} $${S.bank} · ${T('loan')} $${S.loan}</span>`;
+  $('hud').innerHTML = `
+    <div class="hud-top">
+      <div class="avatar">${S.look}</div>
+      <div class="who"><div class="nm">${escapeHTML(S.name)}</div>
+        <div class="sub">${T('week')} ${S.week} · ${jobLabel()}</div></div>
+      <div class="money">${moneyLine}</div>
+    </div>
+    <div>
+      <div class="row" style="justify-content:space-between;font-size:11px" class="muted">
+        <span class="muted tiny">⏳ ${S.hours}/${S.time} ${T('hours')}</span>
+        <span class="muted tiny">🍔 ${Math.round(S.food)}</span>
+      </div>
+      <div class="hoursbar"><i style="width:${(S.hours/S.time*100)}%"></i></div>
+    </div>
+    <div class="gauges">
+      ${gaugeSVG(p.wealth,'var(--w)',T('wealth'), S.mode==='kid'?net()+'🪙':'$'+net())}
+      ${gaugeSVG(p.happy,'var(--h)',T('happy'), Math.round(S.happy)+'/'+S.goal.happy)}
+      ${gaugeSVG(p.edu,'var(--e)',T('edu'), S.edu+'/'+S.goal.edu)}
+      ${gaugeSVG(p.career,'var(--c)',T('career'), careerLv()+'/'+S.goal.career)}
+    </div>
+    <div class="jones"><span>🤵 ${T('jones')}</span><div class="bar"><i style="width:${jo}%"></i></div><span class="mono">${jo}%</span></div>
+    <div class="jmini">${jm}</div>`;
+}
+function jobLabel(){ return S.jobIdx>=0 ? jobName(S.mode,S.jobIdx)+(S.rank?` ·${'★'.repeat(S.rank)}`:'') : (S.mode==='kid'?'בלי עבודה':'unemployed'); }
+
+function renderMap(){
+  const ring=NODES.filter(n=>n.id!==HUB);
+  const isKid=S.mode==='kid';
+  // streets: ring + spokes through hub
+  let streets='';
+  const hub=NODE_POS[HUB];
+  ring.forEach(n=>{ const p=NODE_POS[n.id];
+    streets+=`<line x1="${hub.x}" y1="${hub.y}" x2="${p.x}" y2="${p.y}" class="street"/>`; });
+  // ring polygon
+  const ringPts=ring.map(n=>`${NODE_POS[n.id].x},${NODE_POS[n.id].y}`).join(' ');
+  let tiles='';
+  NODES.forEach(n=>{
+    const p=NODE_POS[n.id]; const here=n.id===S.pos;
+    tiles+=`<g class="tile" onclick="uiTravel('${n.id}')" style="cursor:pointer">
+      <rect x="${p.x-26}" y="${p.y-16}" width="52" height="34" rx="9"
+        fill="${here?'rgba(70,230,255,.18)':'rgba(255,255,255,.05)'}"
+        stroke="${here?'var(--neon)':'var(--line)'}" stroke-width="${here?2:1}"/>
+      <text x="${p.x}" y="${p.y+4}" text-anchor="middle" class="bldg-emoji">${n.emoji}</text>
+      <text x="${p.x}" y="${p.y+30}" text-anchor="middle" class="bldg-name">${shortName(n)}</text>
+    </g>`;
+  });
+  // twinkles
+  let tw=''; for(let i=0;i<14;i++){ const x=12+((i*53)%376), y=10+((i*97)%380);
+    tw+=`<circle class="twinkle" cx="${x}" cy="${y}" r="1.4" fill="#bcd2ff" style="animation-delay:${(i%5)*0.6}s"/>`; }
+  // avatar ABOVE the current tile (offset up so it never overlaps the name)
+  const ap=NODE_POS[S.pos];
+  const avatar=`<g class="av" style="transform:translate(${ap.x}px,${ap.y-36}px)">
+      <circle class="herering ${reduceMotion()?'':'ring-pulse'}" cx="0" cy="6" r="18"/>
+      <text text-anchor="middle" font-size="24" y="6">${S.look}</text></g>`;
+  $('mapSvg').innerHTML=`<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="glow"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <style>.street{stroke:${isKid?'#ffd98a':'#21408a'};stroke-width:9;stroke-linecap:round;filter:url(#glow);opacity:.85}
+        .dash{stroke:${isKid?'#fff':'#cfe6ff'};stroke-width:1.4;stroke-dasharray:4 7;opacity:.6}</style></defs>
+    <rect x="0" y="0" width="400" height="400" fill="${isKid?'#e7f7ff':'#0a1126'}"/>
+    ${isKid?'':tw}
+    <polygon points="${ringPts}" fill="none" class="street"/>
+    ${streets}
+    <polygon points="${ringPts}" fill="none" class="dash"/>
+    ${ring.map(n=>`<line x1="${hub.x}" y1="${hub.y}" x2="${NODE_POS[n.id].x}" y2="${NODE_POS[n.id].y}" class="dash"/>`).join('')}
+    ${tiles}
+    ${avatar}
+  </svg>`;
+}
+function shortName(n){ const s=S.mode==='kid'?n.he:n.en; return s.length>11?s.slice(0,10)+'…':s; }
+
+/* ---------- panel per location ---------- */
+function actLine(label, sub, costMoney, costH, enabled, fn){
+  const cm = costMoney? `<span class="cost">${costMoney}</span> ` : '';
+  const ch = costH? `<span class="cost">${costH}${hl()}</span>` : '';
+  return `<div class="line"><div class="l">${label}${sub?`<small>${sub}</small>`:''}</div>
+    <button class="btn sm" style="width:auto" ${enabled?'':'disabled'} onclick="${fn}">${cm}${ch}</button></div>`;
+}
+function renderPanel(){
+  const id=S.pos, n=NODE[id], isKid=S.mode==='kid';
+  let body='';
+  const e=E();
+  if(id==='burger'){
+    body+=actLine(T('eat'),`+${e.eatFood} 🍔`, money(price(e.eatCost)), e.eatH, canEat(), `uiAct('eat')`);
+    body+=workLineIfHere();
+  } else if(id==='uni'){
+    body+=actLine(T('study'),`edu +1 · ${T('edu')} ${S.edu}/${S.goal.edu}`, money(price(e.course)>0?e.course:e.course), e.studyH, canStudy(), `uiAct('study')`);
+    body+=workLineIfHere();
+  } else if(id==='emp'){
+    body+=jobsList();
+  } else if(id==='bank'){
+    body+=bankPanel();
+  } else if(id==='zmart'){
+    body+=actLine(T('groceries'),`+${e.grocFood} 🍔`, money(price(e.grocCost)), e.buyH, S.pos==='zmart'&&hasH(e.buyH)&&affordCash(price(e.grocCost)), `uiAct('groceries')`);
+    if(!isKid) body+=clothList();
+    body+=actLine(isKid?'צעצוע לבית':'Appliance',`+${e.appliance.happy} ${T('happy')}`, money(price(e.appliance.cost)), e.buyH, S.pos==='zmart'&&hasH(e.buyH)&&affordCash(price(e.appliance.cost)), `uiMood('appliance')`);
+    body+=workLineIfHere();
+  } else if(id==='socket'){
+    body+=actLine(isKid?'צעצוע ענק':'Electronics',`+${e.electronics.happy} ${T('happy')}`, money(price(e.electronics.cost)), e.buyH, S.pos==='socket'&&hasH(e.buyH)&&affordCash(price(e.electronics.cost)), `uiMood('electronics')`);
+    body+=workLineIfHere();
+  } else if(id==='club'){
+    body+=actLine(T('nightOut'),`+${e.night} ${T('happy')}`, money(price(e.nightCost)), e.nightH, S.pos==='club'&&hasH(e.nightH)&&affordCash(price(e.nightCost)), `uiMood('night')`);
+  } else if(id==='hock'){
+    body+=actLine(isKid?'קנייה משומשת':'Buy used',`+${e.used.happy} ${T('happy')}`, money(price(e.used.cost)), e.buyH, S.pos==='hock'&&hasH(e.buyH)&&affordCash(price(e.used.cost)), `uiMood('used')`);
+    body+=actLine(T('sell'),`${S.goods} ${isKid?'פריטים':'goods'}`, '', e.buyH, S.pos==='hock'&&S.goods>0&&hasH(e.buyH), `uiAct('sellGood')`);
+  } else if(id==='factory'){
+    body+=workLineIfHere();
+    if(!workLineIfHere()) body+=`<div class="desc">${isKid?'אין לכם כאן עבודה עדיין.':'No job here yet — apply at the Jobs Office.'}</div>`;
+  } else if(id==='home'){
+    body+=actLine(T('rest'),`+${e.rest} ${T('happy')}`, '', e.restH, hasH(e.restH), `uiMood('rest')`);
+    if(!isKid) body+=houseList();
+  } else if(id==='tips'){
+    body+=actLine(T('readTips'), isKid?`+4 ${T('happy')}`:'reveal prices · dodge bad luck', money(e.tipsFee), e.tipsH, S.pos==='tips'&&hasH(e.tipsH)&&affordCash(e.tipsFee), `uiAct('readTips')`);
+  }
+  // always show work option if your workplace is here (covers socket/factory/bank/uni/burger/zmart)
+  $('panel').innerHTML=`
+    <h3>${n.emoji} ${loc(id)} ${isKid?`<button class="spk" style="width:28px;height:28px;font-size:14px" onclick="speak(NODE_DESC['he']['${id}'])">🔊</button>`:''}</h3>
+    <div class="desc">${NODE_DESC[lang()][id]||''}</div>
+    ${body||'<div class="muted tiny">—</div>'}`;
+}
+function workLineIfHere(){
+  const j=curJob(); if(!j || j.emp!==S.pos) return '';
+  return actLine(`${T('work')} · ${jobName(S.mode,S.jobIdx)}`, `+${money(wage())}`, '', E().workH, canWork(), `uiAct('work')`);
+}
+function jobsList(){
+  const jobs=jobsFor(S.mode);
+  return jobs.map((j,i)=>{
+    const ok=eligibleJob(i), cur=i===S.jobIdx;
+    const reqs = S.mode==='kid'
+      ? `${T('career')} ${j.lv} · ${T('need')} ${T('edu')} ${j.edu}`
+      : `${T('career')} ${j.lv} · edu ${j.edu}${j.cloth?` · outfit ${j.cloth}`:''} · ${money(j.wage)}/shift`;
+    const tag = cur?`<span class="tag ok">${T('haveJob')}</span>`
+      : ok?`<span class="tag ok">✓</span>`:`<span class="tag no">${S.edu<j.edu?T('needsEdu'):'👔'}</span>`;
+    return `<div class="line"><div class="l">${jobName(S.mode,i)} ${tag}<small>${reqs}</small></div>
+      <button class="btn sm" style="width:auto" ${ok&&!cur&&hasH(E().buyH)?'':'disabled'} onclick="uiApply(${i})">${T('apply')}</button></div>`;
+  }).join('');
+}
+function clothList(){
+  return CLOTH.filter(c=>c.tier>S.cloth).slice(0,1).map(c=>
+    actLine(c.en,`${T('career')} outfit ${c.tier}`, money(price(c.price)), E().buyH,
+      S.pos==='zmart'&&hasH(E().buyH)&&affordCash(price(c.price)), `uiBuyCloth(${c.tier})`)).join('');
+}
+function houseList(){
+  return HOUSES.filter((h,i)=>i>S.house).slice(0,1).map((h,k)=>{
+    const i=S.house+1+k;
+    return actLine(`${T('upgrade')}: ${h.en}`,`cap ${h.cap} · rent $${h.rent}`, money(h.dep), E().buyH,
+      S.pos==='home'&&hasH(E().buyH)&&affordCash(h.dep), `uiHouse(${i})`);
+  }).join('');
+}
+function bankPanel(){
+  let b='';
+  b+=actLine(T('deposit'),`${T('cash')} ${money(S.cash)}`,'',E().bankH, S.pos==='bank'&&hasH(E().bankH)&&S.cash>=100,`uiBank('dep',100)`);
+  b+=actLine(T('withdraw'),`${T('bank')} ${money(S.bank)}`,'',E().bankH, S.pos==='bank'&&hasH(E().bankH)&&S.bank>=100,`uiBank('wd',100)`);
+  if(S.mode!=='kid'){
+    b+=actLine(T('takeLoan'),`${T('loan')} $${S.loan} · 8%/wk`,'',E().bankH, S.pos==='bank'&&hasH(E().bankH),`uiBank('loan',200)`);
+    b+=actLine(T('repay'),`${T('loan')} $${S.loan}`,'',E().bankH, S.pos==='bank'&&hasH(E().bankH)&&S.loan>0&&S.cash>0,`uiBank('repay',0)`);
+  }
+  return b;
+}
+function renderEnd(){ const b=$('endBtn'); if(b) b.textContent=`${T('endTurn')}`; }
+
+/* ---------- UI action wrappers (call pure logic, then render + feedback) ---------- */
+function afterAct(msg){
+  if(msg===null||msg===false){ flashMsg(T('noHours')); return; }
+  say(msg); render();
+  if(checkWin()){ render(); endGameScreen(); }
+}
+function uiTravel(id){ if(id===S.pos){ openNodeInfo(); return; } afterAct(actTravel(id)); }
+function uiAct(kind){
+  const map={work:actWork,study:actStudy,eat:actEat,groceries:actGroceries,readTips:actReadTips,sellGood:actSellGood};
+  afterAct(map[kind] ? map[kind]() : null);
+}
+function uiApply(i){ afterAct(actApply(i)); }
+function uiBuyCloth(t){ afterAct(actBuyCloth(t)); }
+function uiHouse(t){ afterAct(actUpgradeHouse(t)); }
+function uiMood(kind){ afterAct(actMood(kind)); }
+function uiBank(op,amt){ afterAct(actBank(op, op==='dep'?Math.min(amt,S.cash):op==='wd'?Math.min(amt,S.bank):amt)); }
+function openNodeInfo(){ if(S.mode==='kid') speak(NODE_DESC.he[S.pos]); }
+
+function uiEndTurn(){
+  const before=S.week;
+  const r=stepEndTurn();
+  render();
+  if(r.event) say(r.event);
+  if(S.over==='lose'){ endGameScreen(); return; }
+  if(typeof setTimeout!=='undefined' && r.event) setTimeout(()=>{ if(!S.over) say(S.mode==='kid'?`${T('week')} ${S.week} 🌞`:`${T('week')} ${S.week}.`); },1400);
+}
+
+/* ---------- message bar + TTS ---------- */
+function say(msg){
+  S.lastMsg=msg; const m=$('msg'); if(m) m.textContent=msg;
+  const ic=$('msgIc'); if(ic) ic.textContent='💬';
+  if(S.mode==='kid' && S.ttsOn) speak(msg);
+}
+function flashMsg(msg){
+  const m=$('msg'); if(m) m.textContent=msg;
+  const ic=$('msgIc'); if(ic) ic.textContent='⛔';
+}
+function toggleTTS(){ S.ttsOn=!S.ttsOn; const b=$('spkBtn'); if(b) b.textContent=S.ttsOn?'🔊':'🔇';
+  if(S.ttsOn) speak(S.lastMsg); else stopSpeak(); }
+function stripEmoji(s){ return String(s).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}←-⇿⬀-⯿️‍⏳★]/gu,'').replace(/\s+/g,' ').trim(); }
+function speak(text){
+  try{
+    if(!window.speechSynthesis) return;
+    const t=stripEmoji(text); if(!t) return;
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t); u.lang='he-IL'; u.rate=0.95; u.pitch=1.05;
+    const vs=window.speechSynthesis.getVoices(); const he=vs.find(v=>/he|iw/i.test(v.lang));
+    if(he) u.voice=he;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function stopSpeak(){ try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){} }
+
+/* ---------- win / lose ---------- */
+function endGameScreen(){
+  const win=S.over==='win';
+  const isKid=S.mode==='kid';
+  const emoji = win?'🏆':'🤝';
+  const title = win?T('win'):T('lose');
+  const sub = win?T('winSub'):T('loseSub');
+  const wk = S.mode==='kid'?`${T('week')} ${S.week}`:`${S.week} ${T('week').toLowerCase()}s`;
+  const html=`<div class="scrim"><div class="card modal">
+    <div class="big">${emoji}</div>
+    <h2 style="margin-bottom:4px">${title}</h2>
+    <div class="muted" style="margin-bottom:10px">${sub}</div>
+    <div class="row" style="justify-content:center;margin-bottom:14px">
+      <span class="pill">${S.look} ${escapeHTML(S.name)}</span>
+      <span class="pill">${wk}</span>
+      <span class="pill">🤵 ${Math.round(jonesOverall()*100)}%</span></div>
+    <button class="btn primary" onclick="restartGame()">${T('playAgain')}</button>
+  </div></div>`;
+  const p=$('popups'); if(p) p.innerHTML=html;
+  if(isKid && S.ttsOn) speak(title+' '+sub);
+}
+function restartGame(){
+  const p=$('popups'); if(p) p.innerHTML='';
+  gateBuf=''; S=null;
+  document.body.classList.remove('kid'); document.body.setAttribute('dir','ltr');
+  show('chooser');
+}
+
+/* ---------- coachmarks (once per page session) ---------- */
+var coachShown=false;
+function showCoach(){
+  if(coachShown) return; coachShown=true;
+  const isKid=S.mode==='kid';
+  const tips = isKid
+    ? ['ברוכים הבאים! 🎉','לחצו על בניין במפה כדי ללכת אליו 🚶','השלימו את כל המטרות העגולות למעלה כדי לנצח!']
+    : ['Tap a building on the map to walk there.','Each action costs hours — spend your week wisely.','Fill all four gauges before Jones does to win.'];
+  let i=0;
+  const p=$('popups'); if(!p) return;
+  function draw(){
+    if(i>=tips.length){ p.innerHTML=''; return; }
+    p.innerHTML=`<div class="coach" onclick="window.__coachNext&&window.__coachNext()">
+      <div class="card modal" style="max-width:300px"><div class="big">${isKid?'👋':'💡'}</div>
+      <div style="margin:6px 0 12px">${tips[i]}</div>
+      <button class="btn primary sm">${isKid?'הבנתי':'Got it'} (${i+1}/${tips.length})</button></div></div>`;
+  }
+  window.__coachNext=function(){ i++; draw(); };
+  draw();
+}
+
+/* ---------- misc ---------- */
+function escapeHTML(s){ return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+
+/* ---------- boot ---------- */
+function boot(){
+  try{
+    if(reduceMotion()) document.body.classList.add('reduce');
+    buildKeypad();
+    show('gate');
+    // warm up voices for TTS (browser only)
+    if(window.speechSynthesis && window.speechSynthesis.getVoices) window.speechSynthesis.getVoices();
+  }catch(e){ /* stubbed DOM in QA — ignore */ }
+}
+boot();
+</script>
+</body>
+</html>

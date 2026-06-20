@@ -1,0 +1,13 @@
+# Dependencies / OS / editor noise
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Local-only dev tooling (not needed for the static deploy)
+server.js
+.claude/
+
+# Temp files produced by the QA harness
+*.qa-extracted.js
+quicklane-extracted-*.js
