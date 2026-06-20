@@ -7,7 +7,7 @@
 <title>Quick Lane</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Mono:wght@400;500&family=Fredoka:wght@500;600;700&family=Heebo:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Mono:wght@400;500&family=Fredoka:wght@500;600;700&family=Heebo:wght@400;700;800&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg0:#0a0e1f; --bg1:#0f1530; --bg2:#161e44; --line:#243056;
@@ -169,6 +169,57 @@ body.kid[dir="rtl"] .money{text-align:left}
 .ring-pulse{animation:rp 1.8s ease-out infinite}
 @keyframes rp{0%{r:18;opacity:.9}100%{r:30;opacity:0}}
 @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
+
+/* ============ RETRO REMAKE — adults (Jones in the Fast Lane, 1991) ============
+   Scoped to body:not(.kid); the kids theme stays bright + Hebrew-readable. */
+:root{
+  --ink:#2a2412; --ink-dim:#6b6242; --line:#1a160a;
+  --card:#cdc3a5; --card2:#bcb088;
+  --neon:#3858fc; --neon2:#e03050; --gold:#fcd000; --good:#2f9e2f; --bad:#d22f2f;
+  --w:#f0a000; --h:#e85aa0; --e:#3878fc; --c:#8a52e0;
+  --font:'VT323','DM Mono',monospace; --mono:'VT323',monospace; --r:0;
+}
+body:not(.kid){
+  background:#15163a;
+  background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px 4px);
+  color:var(--ink); font-family:var(--font); font-size:19px;
+}
+body:not(.kid) .tiny{font-size:15px}
+body:not(.kid) .brand{font-family:'Press Start 2P',monospace;font-size:23px;line-height:1.4;letter-spacing:0;
+  background:none;color:#fcd000;-webkit-text-fill-color:#fcd000;text-shadow:3px 3px 0 #d22f2f}
+body:not(.kid) .brand small{font-family:'VT323',monospace;-webkit-text-fill-color:#9fb0d8;color:#9fb0d8;letter-spacing:2px;font-size:15px}
+body:not(.kid) h1,body:not(.kid) h2,body:not(.kid) h3{font-family:'VT323',monospace;letter-spacing:.5px;font-weight:400}
+body:not(.kid) .muted{color:#6b6242;font-family:'VT323',monospace}
+/* beveled panels + controls — square corners, hard bevels, flat shadow */
+body:not(.kid) .card{background:var(--card);color:var(--ink);border:3px solid;border-color:#efe6c8 #7a6f4a #7a6f4a #efe6c8;border-radius:0;box-shadow:5px 5px 0 rgba(0,0,0,.45)}
+body:not(.kid) .btn{background:#c4b894;color:#2a2412;font-family:'VT323',monospace;font-weight:400;font-size:20px;border:3px solid;border-color:#efe6c8 #7a6f4a #7a6f4a #efe6c8;border-radius:0;box-shadow:none}
+body:not(.kid) .btn:hover{filter:none;background:#cfc4a0}
+body:not(.kid) .btn:active{transform:none;border-color:#7a6f4a #efe6c8 #efe6c8 #7a6f4a}
+body:not(.kid) .btn.sm{font-size:17px}
+body:not(.kid) .btn.primary{background:#3858fc;color:#fff;border-color:#8aa0ff #1834b8 #1834b8 #8aa0ff}
+body:not(.kid) .btn.gold{background:#fcd000;color:#3a2600;border-color:#fff0a0 #b89000 #b89000 #fff0a0}
+body:not(.kid) .btn.ghost{background:#b3a986}
+body:not(.kid) .key{background:#c4b894;color:#2a2412;border:3px solid;border-color:#efe6c8 #7a6f4a #7a6f4a #efe6c8;border-radius:0;font-family:'Press Start 2P',monospace;font-size:13px}
+body:not(.kid) input.name{background:#10122e;color:#fcd000;border:3px solid;border-color:#7a6f4a #efe6c8 #efe6c8 #7a6f4a;border-radius:0;font-family:'VT323',monospace;font-size:22px}
+body:not(.kid) .pill{background:#10122e;color:#f4ecc8;border:2px solid #000;border-radius:0;font-size:14px}
+body:not(.kid) .tag{border-radius:0;border:1px solid #000}
+body:not(.kid) .cost{color:#1834b8}
+/* HUD */
+body:not(.kid) .avatar{background:#10122e;border:3px solid;border-color:#7a6f4a #efe6c8 #efe6c8 #7a6f4a;border-radius:0}
+body:not(.kid) .who .nm{color:#2a2412}
+body:not(.kid) .who .sub{color:#6b6242;font-size:14px}
+body:not(.kid) .money{color:#4a4226} body:not(.kid) .money b{color:#1a6b1a}
+body:not(.kid) .line{border-top:1px dashed #8a7f5a}
+body:not(.kid) .hoursbar,body:not(.kid) .gtrack{background:#10122e;border:2px solid #000;border-radius:0}
+body:not(.kid) .hoursbar>i,body:not(.kid) .gfill{border-radius:0}
+body:not(.kid) .glabel{color:#2a2412;font-size:15px} body:not(.kid) .gval{color:#4a4226;font-size:14px}
+body:not(.kid) .gval.met{color:#2f9e2f}
+/* message bar = retro terminal (green-on-black) */
+body:not(.kid) .msgbar{background:#0c1024;border:3px solid;border-color:#7a6f4a #efe6c8 #efe6c8 #7a6f4a;border-radius:0}
+body:not(.kid) .msgbar .tx{color:#76e07a;font-family:'VT323',monospace;font-size:18px}
+/* map */
+body:not(.kid) .mapwrap{border:3px solid;border-color:#7a6f4a #efe6c8 #efe6c8 #7a6f4a;border-radius:0}
+body:not(.kid) .bldg-name{fill:#f4ecc8;font-family:'VT323',monospace;font-size:12px}
 </style>
 </head>
 <body>
@@ -919,7 +970,7 @@ function renderMap(){
     const p=NODE_POS[n.id]; const here=n.id===S.pos;
     tiles+=`<g class="tile" onclick="uiTravel('${n.id}')" style="cursor:pointer">
       <rect x="${p.x-27}" y="${p.y-16}" width="54" height="34" rx="9"
-        fill="${here?'rgba(70,230,255,.20)':(isKid?'rgba(255,255,255,.80)':'rgba(16,26,54,.85)')}"
+        fill="${here?'#aac4ff':(isKid?'rgba(255,255,255,.80)':'#cdc3a5')}"
         stroke="${here?'var(--neon)':'var(--line)'}" stroke-width="${here?2:1.2}"/>
       <text x="${p.x}" y="${p.y+4}" text-anchor="middle" class="bldg-emoji">${nodeEmoji(n)}</text>
       <text x="${p.x}" y="${p.y+30}" text-anchor="middle" class="bldg-name">${shortName(n)}</text>
@@ -935,10 +986,10 @@ function renderMap(){
       <text text-anchor="middle" font-size="24" y="6">${S.look}</text></g>`;
   $('mapSvg').innerHTML=`<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
     <defs><filter id="glow"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      <style>.street{stroke:${isKid?'#ffe2a6':'#27407e'};stroke-width:8;stroke-linecap:round;filter:url(#glow);opacity:.9}
-        .dash{stroke:${isKid?'#ffffff':'#dce9ff'};stroke-width:1.3;stroke-dasharray:3 9;opacity:.5}
-        .mapgrid{stroke:${isKid?'#bfe6ff':'#1b2a52'};stroke-width:0.5;opacity:.45}</style></defs>
-    <rect x="0" y="0" width="400" height="400" fill="${isKid?'#e7f7ff':'#0a1126'}"/>
+      <style>.street{stroke:${isKid?'#ffe2a6':'#4a4a82'};stroke-width:8;stroke-linecap:round;filter:${isKid?'url(#glow)':'none'};opacity:.95}
+        .dash{stroke:${isKid?'#ffffff':'#fcd000'};stroke-width:1.6;stroke-dasharray:3 9;opacity:.6}
+        .mapgrid{stroke:${isKid?'#bfe6ff':'#2a2a5a'};stroke-width:0.5;opacity:.45}</style></defs>
+    <rect x="0" y="0" width="400" height="400" fill="${isKid?'#e7f7ff':'#141438'}"/>
     ${grid}
     ${isKid?'':tw}
     ${streets}
