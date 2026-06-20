@@ -1,0 +1,4 @@
+# Force LF line endings on checkout everywhere, so the Dockerfile, Caddyfile
+# (esp. the bcrypt hash line) and index.html are always correct inside the
+# Linux container — a stray CRLF on the hash line would break Basic Auth.
+* text=auto eol=lf
