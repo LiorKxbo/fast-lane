@@ -898,7 +898,7 @@ function startGame(){
 function render(){
   if(!S) return;
   renderHUD(); renderMap(); renderPanel(); renderEnd();
-  const tint=$('nightTint'); if(tint) tint.style.opacity = S.mode==='kid'?0:(1 - S.hours/S.time)*0.7;
+  const tint=$('nightTint'); if(tint) tint.style.opacity = 0; // daytime town — no night vignette
 }
 
 function gaugeSVG(p, color, label, valTxt){
@@ -954,47 +954,46 @@ function renderHUD(){
 }
 function jobLabel(){ return S.jobIdx>=0 ? jobName(S.mode,S.jobIdx)+(S.rank?` ·${'★'.repeat(S.rank)}`:'') : (S.mode==='kid'?'בלי עבודה':'unemployed'); }
 
+/* town-diorama map (Jones-style): grass + paved roads + little storefronts */
+const BLDG_COL = {home:'#e8b25a',uni:'#6a9fe0',emp:'#9aa6b4',bank:'#5cc888',socket:'#e6d24e',
+  club:'#c06ad0',hock:'#e0935a',zmart:'#54c4c4',burger:'#e8694e',factory:'#9a9aa8',park:'#62b85a'};
 function renderMap(){
   const isKid=S.mode==='kid';
-  const road=(x1,y1,x2,y2,cls)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}"/>`;
-  // orthogonal city streets (a grid of roads, not radial spokes)
+  const grass   = isKid?'#8fd96a':'#3f7a3a', grass2 = isKid?'#a3e67e':'#477f42';
+  const sidewalk= isKid?'#e6dfcb':'#b4ac9a', asphalt= isKid?'#8a8a93':'#5f5f69';
+  const roofCol = '#4a3526', plateBg = isKid?'#ffffff':'#efe6c8', plateInk = isKid?'#3a2c66':'#2a2412';
   const VX=[72,200,328], HY=[72,200,328];
-  let streets='', dash='';
-  VX.forEach(x=>{ streets+=road(x,72,x,328,'street'); dash+=road(x,72,x,328,'dash'); });
-  HY.forEach(y=>{ streets+=road(72,y,328,y,'street'); dash+=road(72,y,328,y,'dash'); });
-  // faint background map grid (graph-paper feel)
-  let grid=''; for(let g=40; g<400; g+=40){ grid+=road(g,0,g,400,'mapgrid')+road(0,g,400,g,'mapgrid'); }
-  // building tiles
-  let tiles='';
+  const seg=(x1,y1,x2,y2,w,col,extra='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="butt" ${extra}/>`;
+  // grass ground with a subtle checker
+  let ground=`<rect x="0" y="0" width="400" height="400" fill="${grass}"/>`;
+  for(let gy=0; gy<400; gy+=50) for(let gx=0; gx<400; gx+=50) if(((gx+gy)/50)%2===0) ground+=`<rect x="${gx}" y="${gy}" width="50" height="50" fill="${grass2}"/>`;
+  // paved roads (sidewalk band + asphalt + yellow dashes)
+  let roads='', dash='';
+  VX.forEach(x=>{ roads+=seg(x,56,x,344,24,sidewalk)+seg(x,56,x,344,16,asphalt); dash+=seg(x,56,x,344,1.6,'#fcd000','stroke-dasharray="4 8"'); });
+  HY.forEach(y=>{ roads+=seg(56,y,344,y,24,sidewalk)+seg(56,y,344,y,16,asphalt); dash+=seg(56,y,344,y,1.6,'#fcd000','stroke-dasharray="4 8"'); });
+  // storefronts
+  let bldgs='';
   NODES.forEach(n=>{
-    const p=NODE_POS[n.id]; const here=n.id===S.pos;
-    tiles+=`<g class="tile" onclick="uiTravel('${n.id}')" style="cursor:pointer">
-      <rect x="${p.x-27}" y="${p.y-16}" width="54" height="34" rx="9"
-        fill="${here?'#aac4ff':(isKid?'rgba(255,255,255,.80)':'#cdc3a5')}"
-        stroke="${here?'var(--neon)':'var(--line)'}" stroke-width="${here?2:1.2}"/>
-      <text x="${p.x}" y="${p.y+4}" text-anchor="middle" class="bldg-emoji">${nodeEmoji(n)}</text>
-      <text x="${p.x}" y="${p.y+30}" text-anchor="middle" class="bldg-name">${shortName(n)}</text>
+    const p=NODE_POS[n.id], here=n.id===S.pos, c=BLDG_COL[n.id]||'#c8b890';
+    bldgs+=`<g onclick="uiTravel('${n.id}')" style="cursor:pointer">
+      <polygon points="${p.x-28},${p.y-6} ${p.x},${p.y-22} ${p.x+28},${p.y-6}" fill="${roofCol}" stroke="#1a160a" stroke-width="1.5"/>
+      <rect x="${p.x-25}" y="${p.y-6}" width="50" height="34" fill="${c}" stroke="${here?'#fcd000':'#1a160a'}" stroke-width="${here?3:1.5}"/>
+      <text x="${p.x}" y="${p.y+8}" text-anchor="middle" font-size="16">${nodeEmoji(n)}</text>
+      <rect x="${p.x-5}" y="${p.y+17}" width="10" height="11" fill="#2e2113" stroke="#1a160a" stroke-width="1"/>
+      <rect x="${p.x-32}" y="${p.y+31}" width="64" height="14" rx="1" fill="${plateBg}" stroke="#1a160a" stroke-width="1"/>
+      <text x="${p.x}" y="${p.y+41}" text-anchor="middle" font-size="11" fill="${plateInk}" style="font-family:'VT323',monospace">${shortName(n)}</text>
     </g>`;
   });
-  // twinkles (adult night sky only)
-  let tw=''; for(let i=0;i<10;i++){ const x=14+((i*61)%372), y=12+((i*103)%376);
-    tw+=`<circle class="twinkle" cx="${x}" cy="${y}" r="1.3" fill="#bcd2ff" style="animation-delay:${(i%5)*0.6}s"/>`; }
-  // avatar ABOVE the current tile (offset up so it never overlaps the name)
+  // player figure standing above the current shop, with a "you are here" ring
   const ap=NODE_POS[S.pos];
-  const avatar=`<g class="av" style="transform:translate(${ap.x}px,${ap.y-36}px)">
-      <circle class="herering ${reduceMotion()?'':'ring-pulse'}" cx="0" cy="6" r="18"/>
-      <text text-anchor="middle" font-size="24" y="6">${S.look}</text></g>`;
+  const avatar=`<g class="av" style="transform:translate(${ap.x}px,${ap.y-40}px)">
+      <circle class="herering ${reduceMotion()?'':'ring-pulse'}" cx="0" cy="6" r="16"/>
+      <text text-anchor="middle" font-size="22" y="6">${S.look}</text></g>`;
   $('mapSvg').innerHTML=`<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-    <defs><filter id="glow"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      <style>.street{stroke:${isKid?'#ffe2a6':'#4a4a82'};stroke-width:8;stroke-linecap:round;filter:${isKid?'url(#glow)':'none'};opacity:.95}
-        .dash{stroke:${isKid?'#ffffff':'#fcd000'};stroke-width:1.6;stroke-dasharray:3 9;opacity:.6}
-        .mapgrid{stroke:${isKid?'#bfe6ff':'#2a2a5a'};stroke-width:0.5;opacity:.45}</style></defs>
-    <rect x="0" y="0" width="400" height="400" fill="${isKid?'#e7f7ff':'#141438'}"/>
-    ${grid}
-    ${isKid?'':tw}
-    ${streets}
+    ${ground}
+    ${roads}
     ${dash}
-    ${tiles}
+    ${bldgs}
     ${avatar}
   </svg>`;
 }
